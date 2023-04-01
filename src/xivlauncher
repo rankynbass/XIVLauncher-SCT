@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+if [ $1 == "run" ]; then exit; fi
+
+# Working directory is actually the steam install location, so we need to find the path of this script
+# tooldir="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
+tooldir="$(realpath "$(dirname "$0")")"
+
+# Work around a Steam overlay bug.
+export ldpreload="$LD_PRELOAD"
+unset LD_PRELOAD
+
+# Do some logging. Mostly for debug purposes.
+echo "$(date +'%F %T.%3N %:z') [INF] [$0] Running Steam Compatibility Tool at $tooldir/xlcore-bin/XIVLauncher.Core $@" >> ~/.xlcore/logs/launcher.log
+printenv > ~/.xlcore/logs/steamenv.log
+
+
+
+export OPENSSL_CONF="$tooldir/xlcore-bin/openssl_fix.cnf"
+"$tooldir/xlcore-bin/XIVLauncher.Core" $@

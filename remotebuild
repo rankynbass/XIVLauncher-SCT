@@ -1,0 +1,14 @@
+#!/bin/bash
+. paths.sh
+echo "Removing old builds $src $bin"
+rm -rf $src
+rm -rf $bin
+echo "Cloning repos with xlcore:$coreTag & ffql:$ffqlTag"
+git clone -b $coreTag $coreRepo $src
+git clone -b $ffqlTag $ffqlRepo $src/lib/FFXIVQuickLauncher
+mkdir -p $bin
+cp openssl_fix.cnf $bin
+echo "Building XIVLauncher.Core in $bin"
+cd $src/src/XIVLauncher.Core || exit
+dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:Version=$ver -p:DefineConstants="TESTING" -p:BuildHash="$hash"
+echo "Run ./launch to run XIVLauncher.Core"

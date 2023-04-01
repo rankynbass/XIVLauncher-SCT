@@ -1,0 +1,17 @@
+#!/bin/bash
+. paths.sh
+echo "Removing old builds $src $bin"
+rm -rf $src
+rm -rf $bin
+echo "Copying $xlcore/ -> $src"
+cp -r $xlcore/ $src
+echo "Removing submodule files"
+rm -rf $src/lib/FFXIVQuickLauncher
+echo "Copying $ffql -> $src/lib/"
+cp -r $ffql $src/lib/
+mkdir -p $bin
+cp openssl_fix.cnf $bin
+echo "Building XIVLauncher.Core in $bin"
+cd $src/src/XIVLauncher.Core || exit
+dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:DefineConstants="TESTING WINE_XIV_FEDORA_LINUX" -p:BuildHash="$hash"
+echo "Run ./launch to run XIVLauncher.Core"
