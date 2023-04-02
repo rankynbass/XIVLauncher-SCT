@@ -1,4 +1,0 @@
-#!/bin/bash
-. paths.sh
-export OPENSSL_CONF=/tmp/xlcore-bin/openssl_fix.cnf
-$bin/XIVLauncher.Core --parent-expose-pids --parent-share-pids --parent-pid=1 $@
