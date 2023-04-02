@@ -24,3 +24,5 @@ There are a few differences between this build and the standard XIVLauncher.Core
     DXVK ASYNC does nothing for Valve's proton libs, and only works for GE-Proton 7-44 and earlier.
 
 3. There is now a Troubleshooting tab in the Settings menu. This has some buttons to clear wine and proton prefixes, xlcore compatibilitytools folder, dalamud plugins, and log files, as well as generate a tspack.
+
+4. I have done all the compiling in an Ubuntu 20.04 container. Hopefully that will allow this to run on just about anything modern. Libraries in the `lib/` folder are also taken from Ubuntu 20.04, and provided as fallback in case the user doesn't have them. Aria2c is included in the `bin/` directory for a similar reason.
