@@ -25,4 +25,4 @@ There are a few differences between this build and the standard XIVLauncher.Core
 
 3. There is now a Troubleshooting tab in the Settings menu. This has some buttons to clear wine and proton prefixes, xlcore compatibilitytools folder, dalamud plugins, and log files, as well as generate a tspack.
 
-4. I have done all the compiling in an Ubuntu 20.04 container. Hopefully that will allow this to run on just about anything modern. Libraries in the `lib/` folder are also taken from Ubuntu 20.04, and provided as fallback in case the user doesn't have them. Aria2c is included in the `bin/` directory for a similar reason.
+4. I have done all the compiling in an Ubuntu 20.04 container. Hopefully that will allow this to run on just about anything modern. aria2c is included in the `bin/` directory in case it's not installed on the user's system. It's taken from Ubuntu 20.04, and a copy of the GPL 2.0 license is included (as aria2 uses that license). Source code can be found at https://github.com/aria2/aria2
