@@ -1,3 +1,5 @@
+# Library dependencies for XIVLauncher.Core. Taken from the MPR Ubuntu PKGBUILD
+# https://mpr.makedeb.org/packages/xivlauncher
 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.10.0
 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0
 /usr/lib/x86_64-linux-gnu/libsecret-1.so.0.0.0

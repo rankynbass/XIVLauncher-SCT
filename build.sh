@@ -1,13 +1,17 @@
 #!/bin/bash
 . paths.sh
-echo "Removing old build $bin"
-rm -rf "$bin"
+if [ -n $1 ]; then
+    outname="$1"
+fi
+echo "Removing old build $outfolder"
+rm -rf "$outfolder"
 mkdir -p "$bin"
 cp openssl_fix.cnf "$bin"
 cp src/* "$bin/../"
+cp -r bin "$bin/.."
 echo "Building XIVLauncher.Core in $bin"
 cd XIVLauncher.Core/src/XIVLauncher.Core || exit
-dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:BuildHash="$hash"
+dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:Version="$ver" -p:BuildHash="$hash"
 cd "$bin/../.."
 echo "Compressing to tar.gz archive..."
 tar -czf $outname XIVLauncher
