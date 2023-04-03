@@ -2,7 +2,7 @@
 # This script is for rapidly testing and rebuilding based on local repos
 # Set the local repo paths for XIVLauncher.Core and FFXIVQuickLauncher in the paths.sh script.
 . paths.sh
-if [ -n $1 ]; then
+if (( $# > 0 )); then
     outname="$1"
 fi
 echo "Removing old builds $src $outfolder"

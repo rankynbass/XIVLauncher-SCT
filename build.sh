@@ -1,8 +1,9 @@
 #!/bin/bash
 . paths.sh
-if [ -n $1 ]; then
+if (( $# > 0 )); then
     outname="$1"
 fi
+echo $outname
 echo "Removing old build $outfolder"
 rm -rf "$outfolder"
 mkdir -p "$bin"
