@@ -1,0 +1,3 @@
+[submodule "XIVLauncher.Core"]
+	path = XIVLauncher.Core
+	url = https://github.com/rankynbass/XIVLauncher.Core
