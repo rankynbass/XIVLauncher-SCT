@@ -3,6 +3,7 @@
 # make sure the ~/.xlcore/logs directory exists, otherwise this script will crash when writing to it.
 makedir -p ~/.xlcore/logs
 
+# Prevent double launch
 if [ $1 == "run" ]; then exit; fi
 
 # Working directory is actually the steam install location, so we need to find the path of this script
@@ -11,14 +12,10 @@ tooldir="$(realpath "$(dirname "$0")")"
 # If aria2c isn't found, add our local copy to the $PATH
 count=$(find /usr -type f -executable -name "aria2c" 2>/dev/null | wc -l)
 if (( $count == 0 )); then
-    PATH=$PATH:$tooldir/bin
+    PATH="$PATH:$tooldir/bin"
 fi
 
-# Work around a Steam overlay bug. I put some code into XIVLauncher to add the ldpreload variable
-# to the LD_PRELOAD variable before launching proton/wine. This prevents the overlay from corrupting
-# the XIVLauncher UI.
-export ldpreload="$LD_PRELOAD"
-unset LD_PRELOAD
+export LD_PRELOAD="$tooldir/lib/libsecret-1.so.0:$tooldir/lib/libsecret-1.so.0.0.0:$LD_PRELOAD"
 
 # Do some logging. Mostly for debug purposes.
 echo "$(date +'%F %T.%3N %:z') [INF] [$0] Running Steam Compatibility Tool at $tooldir/xlcore-bin/XIVLauncher.Core $@" >> ~/.xlcore/logs/launcher.log

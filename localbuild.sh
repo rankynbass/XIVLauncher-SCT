@@ -18,6 +18,9 @@ mkdir -p $bin
 cp src/* "$bin/../"
 cp -r bin "$bin/.."
 cp openssl_fix.cnf $bin
+mkdir -p $outfolder/XIVLauncher/lib
+cp lib/libsecret-1.so.0.0.0 $outfolder/XIVLauncher/lib
+ln -sr $outfolder/XIVLauncher/lib/libsecret-1.so.0.0.0 $outfolder/XIVLauncher/lib/libsecret-1.so.0
 echo "Building XIVLauncher.Core in $bin"
 cd $src/src/XIVLauncher.Core || exit
 dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:Version="$ver" -p:BuildHash="$hash"
