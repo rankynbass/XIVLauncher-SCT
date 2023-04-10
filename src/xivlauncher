@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # make sure the ~/.xlcore/logs directory exists, otherwise this script will crash when writing to it.
-makedir -p ~/.xlcore/logs
+mkdir -p ~/.xlcore/logs
 
 # Prevent double launch
 if [ $1 == "run" ]; then exit; fi
