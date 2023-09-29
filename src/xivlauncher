@@ -19,7 +19,7 @@ fi
 # to the LD_PRELOAD variable before launching proton/wine. This prevents the overlay from corrupting
 # the XIVLauncher UI.
 # Then set LD_PRELOAD to point to the included libsecret library files.
-export ldpreload="$LD_PRELOAD"
+export XL_PRELOAD="$LD_PRELOAD"
 unset LD_PRELOAD
 export LD_PRELOAD="$tooldir/lib/libsecret-1.so.0:$tooldir/lib/libsecret-1.so.0.0.0"
 
