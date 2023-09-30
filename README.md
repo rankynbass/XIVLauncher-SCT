@@ -1,10 +1,14 @@
 # XIVLauncher-SCT
-## XIVLauncher.Core built into a Steam Compatibility Tool
+**XIVLauncher.Core built into a Steam Compatibility Tool**
 
-Clone the repo, then build the tool with ./build.sh. This will put a tar.gz file in the `out/` directory. Unzip that to `~/.local/share/Steam/compatibilitytools.d/`. Then restart Steam.
+## Installation
+Download the latest release, and unpack to `~/.local/share/Steam/compatibilitytools.d` or `~/.var/app/com.valvesoftware.Steam/.local/share/compatibilitytools.d` (flatpak Steam).
+
+For new FFXIV installs: after installing FFXIV, you need to run it once with default options. You do not need to log in with the SquareEnix launcher, just run it once. This will ensure at least one proton version is installed, and also install some files that Steam needs in order think FFXIV is actually installed properly.
 
 Open Steam, and right-click on Final Fantasy XIV. Properties > Compatibility > Force the use of a specific Steam Play compatibility tool and select XIVLauncher.Core from the dropdown menu.
 
+## Configuration 
 There are a few differences between this build and the standard XIVLauncher.Core flatpak.
 
 - The GamePath will *by default* be set by Steam. So wherever steam wants to install (or has installed) FFXIV will automatically be used. You can override this to point to an existing install. The GameConfigPath, will have a default path of `$XDG_DATA_HOME/xivlauncher-sct/ffxivConfig` which can also be overridden. ($XDG_DATA_HOME is usually `~/.local/share`, or `~/.var/app/com.valvesoftware.Steam/.local/share` for flatpak Steam)
@@ -46,3 +50,8 @@ This is early-release software and may not be particularly stable. I've added a 
 - There's an environment variable logfile at `~/.local/share/xivlauncher-sct/logs/steamenv.log`. This file contains all the environment variables that are active when XIVLauncher.Core starts up.
 
 - You might not be able to get help from the official XIVLauncher discord. I'm usually there, but this is significantly different from stock XIVLauncher.Core, so other people may not want to or be able to help. If you have problems, make an issue on this github repo, and I'll try to check it out when I get the chance.
+
+## Building
+Clone the repo with `git clone --recurse-submodules https://github.com/rankynbass/XIVLauncher-SCT.git`. Open up the paths.sh script and adjust if needed. Build the tool with ./build.sh. This will put a tar.gz file in the out/ directory. Unzip that to `~/.local/share/Steam/compatibilitytools.d/` or `~/.var/app/com.valvesoftware.Steam/.local/share/Steam/compatibilitytools.d` (flatpak Steam). Then restart Steam.
+
+If you are making changes and testing, you may be tempted to link the out/XIVLauncher folder into the compatibilitytools.d folder. Don't; Steam doesn't follow links in that directory to see if there's anything valid. You *can* link the xlcore-bin folder inside the XIVLauncher folder, however.
