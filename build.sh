@@ -15,7 +15,7 @@ cp lib/libsecret-1.so.0.0.0 $outfolder/XIVLauncher/lib
 ln -sr $outfolder/XIVLauncher/lib/libsecret-1.so.0.0.0 $outfolder/XIVLauncher/lib/libsecret-1.so.0
 echo "Building XIVLauncher.Core in $bin"
 cd XIVLauncher.Core/src/XIVLauncher.Core || exit
-dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:Version="$ver" -p:BuildHash="$hash"
+dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:BuildHash="$hash"
 cd "$bin/../.."
 echo "Compressing to tar.gz archive..."
 tar -czf $outname XIVLauncher
