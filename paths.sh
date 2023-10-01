@@ -7,7 +7,7 @@ export ffql=$HOME/projects/FFXIVQuickLauncher
 # use -clp:ErrorsOnly to turn off warnings. Comment out to enable warnings.
 export noWarnings=-clp:ErrorsOnly
 # Name of output file.
-export ver=0.3.0
+export ver=0.3.1
 export rel=beta
 export hash=$rel
 export outname=XIVLauncher-SCT-$ver-$rel.tar.gz
