@@ -1,4 +1,4 @@
-# Absolute minimum openssl config that works on Fedora 36
+# Absolute minimum openssl config that works for FFXIV
 # Fixes SSL error when logging in
 # This is NOT SAFE to use as system default. Do not replace your
 # system openssl.cnf with this file.
