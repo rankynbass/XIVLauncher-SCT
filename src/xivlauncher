@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
+if [[ -z $XDG_DATA_HOME ]]; then
+    XDG_DATA_HOME=~/.local/share
+fi
+
 # make sure the ~/.xlcore/logs directory exists, otherwise this script will crash when writing to it.
-mkdir -p ~/.xlcore/logs
+logdir=$XDG_DATA_HOME/xivlauncher-sct/logs
+mkdir -p $logdir
 
 # Prevent double launch
 if [ $1 == "run" ]; then exit; fi
@@ -24,8 +29,8 @@ unset LD_PRELOAD
 export LD_PRELOAD="$tooldir/lib/libsecret-1.so.0:$tooldir/lib/libsecret-1.so.0.0.0"
 
 # Do some logging. Mostly for debug purposes.
-echo "$(date +'%F %T.%3N %:z') [INF] [$0] Running Steam Compatibility Tool at $tooldir/xlcore-bin/XIVLauncher.Core $@" >> ~/.xlcore/logs/launcher.log
-printenv > ~/.xlcore/logs/steamenv.log
+echo "$(date +'%F %T.%3N %:z') [INF] [$0] Running Steam Compatibility Tool at $tooldir/xlcore-bin/XIVLauncher.Core $@" >> $logdir/launcher.log
+printenv > $logdir/steamenv.log
 
 export OPENSSL_CONF="$tooldir/xlcore-bin/openssl_fix.cnf"
 "$tooldir/xlcore-bin/XIVLauncher.Core" $@

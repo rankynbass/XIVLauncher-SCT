@@ -1,7 +1,8 @@
 "manifest"
 {
   "version" "2"
-  "commandline" "/xivlauncher %verb% >~/xivlauncher-sct_steamconsole.log 2>&1"
+  "commandline" "/xivlauncher %verb%"
+  "require_tool_appid" "1628350"
   "use_sessions" "1"
   "compatmanager_layer_name" "xivlauncher"
 }
