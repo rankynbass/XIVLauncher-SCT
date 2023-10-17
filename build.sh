@@ -1,5 +1,10 @@
 #!/bin/bash
 . paths.sh
+
+cd XIVLauncher.Core
+hash=$(git rev-parse --short HEAD)
+cd ..
+
 if (( $# > 0 )); then
     outname="$1"
 fi

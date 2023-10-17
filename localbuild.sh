@@ -2,6 +2,11 @@
 # This script is for rapidly testing and rebuilding based on local repos
 # Set the local repo paths for XIVLauncher.Core and FFXIVQuickLauncher in the paths.sh script.
 . paths.sh
+
+cd XIVLauncher.Core
+hash=$(git rev-parse --short HEAD)
+cd ..
+
 if (( $# > 0 )); then
     outname="$1"
 fi
