@@ -30,7 +30,7 @@ echo "Building XIVLauncher.Core in $bin"
 cd $src/src/XIVLauncher.Core || exit
 dotnet publish -r linux-x64 --sc -o "$bin" --configuration Release $noWarnings -p:BuildHash="$hash"
 cd "$bin/../.."
-echo "Compressing to tar.gz archive..."
-tar -czf $outname XIVLauncher
+echo "Compressing to tar.xz archive..."
+XZ_OPT='-T0' tar -cJf $outname XIVLauncher
 echo "Output file: $(pwd)/$outname"
 echo "Unzip to ~/.local/share/Steam/compatibilitytools.d and restart Steam."
