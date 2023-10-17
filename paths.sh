@@ -8,4 +8,4 @@ export ffql=$HOME/projects/FFXIVQuickLauncher
 export noWarnings=-clp:ErrorsOnly
 # Name of output file.
 export ver=0.6.0
-export outname=XIVLauncher-SCT-$ver.tar.xz
+export outname=XIVLauncher-SCT-$ver.tar.gz
