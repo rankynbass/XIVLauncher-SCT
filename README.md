@@ -65,3 +65,15 @@ This is early-release software and may not be particularly stable. I've added a 
 Clone the repo with `git clone --recurse-submodules https://github.com/rankynbass/XIVLauncher-SCT.git`. Open up the paths.sh script and adjust if needed. Build the tool with ./build.sh. This will put a tar.gz file in the out/ directory. Unzip that to `~/.local/share/Steam/compatibilitytools.d/` or `~/.var/app/com.valvesoftware.Steam/.local/share/Steam/compatibilitytools.d` (flatpak Steam). Then restart Steam.
 
 If you are making changes and testing, you may be tempted to link the out/XIVLauncher folder into the compatibilitytools.d folder. Don't; Steam doesn't follow links in that directory to see if there's anything valid. You *can* link the xlcore-bin folder inside the XIVLauncher folder, however.
+
+## Patches
+I've included two patchfiles for XIVLauncher.Core. If you'd like to build off of the official goatcorp repo, you can apply these patches to the 1.0.6 source.
+
+```
+git clone https://github.com/goatcorp/XIVLauncher.Core.git --branch 1.0.6 --recurse-submodules
+cd XIVLauncher.Core
+git apply /path/to/XIVLauncher-SCT-src.patch
+cd lib/FFXIVQuickLauncher
+git apply /path/to/XIVLauncher-SCT-lib.patch
+```
+At that point the source code is up-to-date and can be compiled.
