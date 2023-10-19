@@ -1,5 +1,5 @@
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs b/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
-index 8216526..2007ef0 100644
+index 8216526f..89dbd052 100644
 --- a/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
 +++ b/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
 @@ -1,13 +1,12 @@
@@ -131,12 +131,14 @@ index 8216526..2007ef0 100644
 -        var tempFilePath = Path.Combine(tempPath.FullName, $"{Guid.NewGuid()}");
 +        await DownloadTool(wineDirectory, Settings.DownloadUrl).ConfigureAwait(false);
 +    }
-+
+ 
+-        await File.WriteAllBytesAsync(tempFilePath, await client.GetByteArrayAsync(WINE_XIV_RELEASE_URL).ConfigureAwait(false)).ConfigureAwait(false);
 +    public async Task DownloadDxvk()
 +    {
 +        await DownloadTool(dxvkDirectory, DxvkSettings.DownloadUrl).ConfigureAwait(false);
 +    }
-+
+ 
+-        PlatformHelpers.Untar(tempFilePath, this.toolDirectory.FullName);
 +    private async Task InstallDxvk()
 +    {
 +        var dxvkPath = Path.Combine(dxvkDirectory.FullName, DxvkSettings.FolderName, "x64");
@@ -145,27 +147,25 @@ index 8216526..2007ef0 100644
 +            Log.Information($"DXVK does not exist, downloading {DxvkSettings.DownloadUrl}");
 +            await DownloadDxvk().ConfigureAwait(false);
 +        }
-+
+ 
+-        Log.Information("Compatibility tool successfully extracted to {Path}", this.toolDirectory.FullName);
 +        var system32 = Path.Combine(Settings.Prefix.FullName, "drive_c", "windows", "system32");
 +        var files = Directory.GetFiles(dxvkPath);
  
--        await File.WriteAllBytesAsync(tempFilePath, await client.GetByteArrayAsync(WINE_XIV_RELEASE_URL).ConfigureAwait(false)).ConfigureAwait(false);
+-        File.Delete(tempFilePath);
 +        foreach (string fileName in files)
 +        {
 +            File.Copy(fileName, Path.Combine(system32, Path.GetFileName(fileName)), true);
 +        }
- 
--        PlatformHelpers.Untar(tempFilePath, this.toolDirectory.FullName);
++
 +        // 32-bit files for Directx9.
 +        var dxvkPath32 = Path.Combine(dxvkDirectory.FullName, DxvkSettings.FolderName, "x32");
 +        var syswow64 = Path.Combine(Settings.Prefix.FullName, "drive_c", "windows", "syswow64");
- 
--        Log.Information("Compatibility tool successfully extracted to {Path}", this.toolDirectory.FullName);
++
 +        if (Directory.Exists(dxvkPath32))
 +        {
 +            files = Directory.GetFiles(dxvkPath32);
- 
--        File.Delete(tempFilePath);
++
 +            foreach (string fileName in files)
 +            {
 +                File.Copy(fileName, Path.Combine(syswow64, Path.GetFileName(fileName)), true);
@@ -295,7 +295,7 @@ index 8216526..2007ef0 100644
      private Process RunInPrefix(ProcessStartInfo psi, string workingDirectory, IDictionary<string, string> environment, bool redirectOutput, bool writeLog, bool wineD3D)
      {
          psi.RedirectStandardOutput = redirectOutput;
-@@ -156,48 +254,70 @@ public class CompatibilityTools
+@@ -156,48 +254,63 @@ public class CompatibilityTools
          psi.UseShellExecute = false;
          psi.WorkingDirectory = workingDirectory;
  
@@ -338,10 +338,6 @@ index 8216526..2007ef0 100644
 +        }
 +        else
 +        {
-+            if (wineD3D)
-+            {
-+                DxvkSettings.Environment.Add("PROTON_USE_WINED3D", "1");
-+            }
 +            DxvkSettings.Environment.Remove("DXVK_CONFIG_FILE");
 +            DxvkSettings.Environment.Remove("DXVK_STATE_CACHE_PATH");
 +            wineEnvironmentVariables.Add("STEAM_COMPAT_DATA_PATH", Settings.ProtonPrefix);
@@ -352,18 +348,15 @@ index 8216526..2007ef0 100644
 +                    wineEnvironmentVariables.Add("PROTON_NO_ESYNC", "1");
 +                wineEnvironmentVariables.Add("PROTON_NO_FSYNC", "1");
 +            }
++            var compatMounts = new System.Text.StringBuilder(System.Environment.GetEnvironmentVariable("STEAM_COMPAT_MOUNTS") ?? "");
++            compatMounts.Append($":{Settings.GameConfigPath}:");
 +            if (!string.IsNullOrEmpty(Settings.RuntimePath))
 +            {
-+                var compatMounts = new System.Text.StringBuilder(System.Environment.GetEnvironmentVariable("STEAM_COMPAT_MOUNTS") ?? "");
-+                compatMounts.Append($":{Settings.GameConfigPath}:");
-+                if (!string.IsNullOrEmpty(Settings.RuntimePath))
-+                {
-+                    var runPath = System.Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
-+                    for (int i = 0; i < 10; i++)
-+                        compatMounts.Append($"{runPath}/discord-ipc-{i}:{runPath}/app/com.discordapp.Discord/discord-ipc-{i}:{runPath}/snap.discord-cananry/discord-ipc-{i}:");
-+                }
-+                wineEnvironmentVariables.Add("STEAM_COMPAT_MOUNTS", compatMounts.ToString().Trim(':'));
++                var runPath = System.Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
++                for (int i = 0; i < 10; i++)
++                    compatMounts.Append($"{runPath}/discord-ipc-{i}:{runPath}/app/com.discordapp.Discord/discord-ipc-{i}:{runPath}/snap.discord-cananry/discord-ipc-{i}:");
 +            }
++            wineEnvironmentVariables.Add("STEAM_COMPAT_MOUNTS", compatMounts.ToString().Trim(':'));
          }
  
 -        wineEnviromentVariables.Add("DXVK_HUD", dxvkHud);
@@ -392,7 +385,7 @@ index 8216526..2007ef0 100644
          {
              psi.ArgumentList.Insert(1, $"--env={envVar.Key}={envVar.Value}");
          }
-@@ -257,18 +377,58 @@ public class CompatibilityTools
+@@ -257,18 +370,58 @@ public class CompatibilityTools
      {
          var wineDbg = RunInPrefix("winedbg --command \"info procmap\"", redirectOutput: true);
          var output = wineDbg.StandardOutput.ReadToEnd();
@@ -455,7 +448,7 @@ index 8216526..2007ef0 100644
          var output = winePath.StandardOutput.ReadToEnd();
          return output.Split('\n', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
      }
-@@ -282,7 +442,7 @@ public class CompatibilityTools
+@@ -282,7 +435,7 @@ public class CompatibilityTools
  
      public void Kill()
      {
@@ -466,7 +459,7 @@ index 8216526..2007ef0 100644
          };
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/Dxvk.cs b/src/XIVLauncher.Common.Unix/Compatibility/Dxvk.cs
 deleted file mode 100644
-index 50fa98d..0000000
+index 50fa98d9..00000000
 --- a/src/XIVLauncher.Common.Unix/Compatibility/Dxvk.cs
 +++ /dev/null
 @@ -1,55 +0,0 @@
@@ -528,7 +521,7 @@ index 50fa98d..0000000
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/DxvkSettings.cs b/src/XIVLauncher.Common.Unix/Compatibility/DxvkSettings.cs
 new file mode 100644
-index 0000000..db657bb
+index 00000000..db657bbc
 --- /dev/null
 +++ b/src/XIVLauncher.Common.Unix/Compatibility/DxvkSettings.cs
 @@ -0,0 +1,87 @@
@@ -622,7 +615,7 @@ index 0000000..db657bb
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/ProtonSettings.cs b/src/XIVLauncher.Common.Unix/Compatibility/ProtonSettings.cs
 new file mode 100644
-index 0000000..0c8929e
+index 00000000..0c8929ea
 --- /dev/null
 +++ b/src/XIVLauncher.Common.Unix/Compatibility/ProtonSettings.cs
 @@ -0,0 +1,30 @@
@@ -658,7 +651,7 @@ index 0000000..0c8929e
 +}
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/WineSettings.cs b/src/XIVLauncher.Common.Unix/Compatibility/WineSettings.cs
-index 9b122f7..3e49447 100644
+index 9b122f7a..3e49447d 100644
 --- a/src/XIVLauncher.Common.Unix/Compatibility/WineSettings.cs
 +++ b/src/XIVLauncher.Common.Unix/Compatibility/WineSettings.cs
 @@ -1,37 +1,76 @@
@@ -760,7 +753,7 @@ index 9b122f7..3e49447 100644
  }
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Common.Unix/UnixDalamudRunner.cs b/src/XIVLauncher.Common.Unix/UnixDalamudRunner.cs
-index ef1b854..b2fde02 100644
+index ef1b8545..b2fde02c 100644
 --- a/src/XIVLauncher.Common.Unix/UnixDalamudRunner.cs
 +++ b/src/XIVLauncher.Common.Unix/UnixDalamudRunner.cs
 @@ -74,12 +74,28 @@ public class UnixDalamudRunner : IDalamudRunner

@@ -1,15 +1,18 @@
 #!/bin/bash
 # This script is for rapidly testing and rebuilding based on local repos
 # Set the local repo paths for XIVLauncher.Core and FFXIVQuickLauncher in the paths.sh script.
+cd $(dirname $(realpath $0))
 . paths.sh
 
-cd XIVLauncher.Core
+cd $xlcore
 hash=$(git rev-parse --short HEAD)
-cd ..
+cd $rootfolder
 
 if (( $# > 0 )); then
     outname="$1"
 fi
+
+echo "Building from local sources $xlcore and $ffql"
 echo "Removing old builds $src $outfolder"
 rm -rf $src
 rm -rf $outfolder

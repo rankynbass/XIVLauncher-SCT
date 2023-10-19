@@ -1,14 +1,19 @@
 #!/bin/bash
+cd $(dirname $(realpath $0))
 . paths.sh
 
-cd XIVLauncher.Core
+cd $rootfolder/XIVLauncher.Core
 hash=$(git rev-parse --short HEAD)
-cd ..
+cd $rootfolder
 
 if (( $# > 0 )); then
     outname="$1"
 fi
-echo $outname
+
+echo "Building from submodule $rootfolder/XIVLauncher.Core"
+cd XIVLauncher.Core
+git checkout --recurse-submodules xlcore-sct
+cd ..
 echo "Removing old build $outfolder"
 rm -rf "$outfolder"
 mkdir -p "$bin"
