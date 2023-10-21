@@ -33,4 +33,4 @@ echo "$(date +'%F %T.%3N %:z') [INF] [$0] Running Steam Compatibility Tool at $t
 printenv > $logdir/steamenv.log
 
 export OPENSSL_CONF="$tooldir/xlcore-bin/openssl_fix.cnf"
-"$tooldir/xlcore-bin/XIVLauncher.Core" $@
+"$tooldir/xlcore-bin/XIVLauncher.Core" $@ >> $logdir/console.log 2>&1
