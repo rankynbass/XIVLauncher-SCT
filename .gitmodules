@@ -1,3 +1,9 @@
 [submodule "XIVLauncher.Core"]
 	path = XIVLauncher.Core
 	url = https://github.com/rankynbass/XIVLauncher.Core
+[submodule "libsecret"]
+	path = libsecret
+	url = https://github.com/GNOME/libsecret.git
+[submodule "aria2"]
+	path = aria2
+	url = https://github.com/aria2/aria2.git
