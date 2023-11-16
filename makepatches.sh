@@ -7,4 +7,4 @@ libcommit=e8e22c3
 cd $rootfolder/XIVLauncher.Core
 git diff --binary $corecommit xlcore-sct -- src/ > $rootfolder/patches/XIVLauncher-SCT-src.patch
 cd lib/FFXIVQuickLauncher
-git diff $libcommit compatibility-rework-2-proton > $rootfolder/patches/XIVLauncher-SCT-lib.patch
+git diff $libcommit xlcore-sct > $rootfolder/patches/XIVLauncher-SCT-lib.patch

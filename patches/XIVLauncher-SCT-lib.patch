@@ -1,5 +1,5 @@
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs b/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
-index 8216526f..89dbd052 100644
+index 8216526f..ffe33152 100644
 --- a/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
 +++ b/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
 @@ -1,13 +1,12 @@
@@ -131,14 +131,12 @@ index 8216526f..89dbd052 100644
 -        var tempFilePath = Path.Combine(tempPath.FullName, $"{Guid.NewGuid()}");
 +        await DownloadTool(wineDirectory, Settings.DownloadUrl).ConfigureAwait(false);
 +    }
- 
--        await File.WriteAllBytesAsync(tempFilePath, await client.GetByteArrayAsync(WINE_XIV_RELEASE_URL).ConfigureAwait(false)).ConfigureAwait(false);
++
 +    public async Task DownloadDxvk()
 +    {
 +        await DownloadTool(dxvkDirectory, DxvkSettings.DownloadUrl).ConfigureAwait(false);
 +    }
- 
--        PlatformHelpers.Untar(tempFilePath, this.toolDirectory.FullName);
++
 +    private async Task InstallDxvk()
 +    {
 +        var dxvkPath = Path.Combine(dxvkDirectory.FullName, DxvkSettings.FolderName, "x64");
@@ -147,25 +145,27 @@ index 8216526f..89dbd052 100644
 +            Log.Information($"DXVK does not exist, downloading {DxvkSettings.DownloadUrl}");
 +            await DownloadDxvk().ConfigureAwait(false);
 +        }
- 
--        Log.Information("Compatibility tool successfully extracted to {Path}", this.toolDirectory.FullName);
++
 +        var system32 = Path.Combine(Settings.Prefix.FullName, "drive_c", "windows", "system32");
 +        var files = Directory.GetFiles(dxvkPath);
  
--        File.Delete(tempFilePath);
+-        await File.WriteAllBytesAsync(tempFilePath, await client.GetByteArrayAsync(WINE_XIV_RELEASE_URL).ConfigureAwait(false)).ConfigureAwait(false);
 +        foreach (string fileName in files)
 +        {
 +            File.Copy(fileName, Path.Combine(system32, Path.GetFileName(fileName)), true);
 +        }
-+
+ 
+-        PlatformHelpers.Untar(tempFilePath, this.toolDirectory.FullName);
 +        // 32-bit files for Directx9.
 +        var dxvkPath32 = Path.Combine(dxvkDirectory.FullName, DxvkSettings.FolderName, "x32");
 +        var syswow64 = Path.Combine(Settings.Prefix.FullName, "drive_c", "windows", "syswow64");
-+
+ 
+-        Log.Information("Compatibility tool successfully extracted to {Path}", this.toolDirectory.FullName);
 +        if (Directory.Exists(dxvkPath32))
 +        {
 +            files = Directory.GetFiles(dxvkPath32);
-+
+ 
+-        File.Delete(tempFilePath);
 +            foreach (string fileName in files)
 +            {
 +                File.Copy(fileName, Path.Combine(syswow64, Path.GetFileName(fileName)), true);
@@ -206,7 +206,7 @@ index 8216526f..89dbd052 100644
 +        psi.Environment.Add("WINEPREFIX", Settings.Prefix.FullName);
 +        psi.Environment.Add("STEAM_COMPAT_DATA_PATH", Settings.ProtonPrefix);
 +        psi.Environment.Add("STEAM_COMPAT_CLIENT_INSTALL_PATH", Settings.SteamPath);
-+        psi.Environment.Add("WINEDLLOVERRIDES", $"msquic=,mscoree=n,b;d3d9,d3d11,d3d10core,dxgi={(DxvkSettings.Enabled ? "n,b" : "b")}");
++        psi.Environment.Add("WINEDLLOVERRIDES", $"msquic=,mscoree=n,b;d3d9,d3d11,d3d10core,{(DxvkSettings.VKD3DEnabled && DxvkSettings.Enabled ? ",d3d12," : "")}dxgi={(DxvkSettings.Enabled ? "n,b" : "b")}");
 + 
 +        psi.Arguments = verb + (string.IsNullOrWhiteSpace(command) ? "" : " " + command.Trim());
 +       
@@ -295,7 +295,7 @@ index 8216526f..89dbd052 100644
      private Process RunInPrefix(ProcessStartInfo psi, string workingDirectory, IDictionary<string, string> environment, bool redirectOutput, bool writeLog, bool wineD3D)
      {
          psi.RedirectStandardOutput = redirectOutput;
-@@ -156,48 +254,63 @@ public class CompatibilityTools
+@@ -156,48 +254,70 @@ public class CompatibilityTools
          psi.UseShellExecute = false;
          psi.WorkingDirectory = workingDirectory;
  
@@ -306,7 +306,7 @@ index 8216526f..89dbd052 100644
 +
 +        var wineEnvironmentVariables = new Dictionary<string, string>();
 +        wineEnvironmentVariables.Add("WINEPREFIX", Settings.Prefix.FullName);
-+        wineEnvironmentVariables.Add("WINEDLLOVERRIDES", $"msquic=,mscoree=n,b;d3d9,d3d11,d3d10core,dxgi={(wineD3D ? "b" : "n,b")}");
++        wineEnvironmentVariables.Add("WINEDLLOVERRIDES", $"msquic=,mscoree=n,b;d3d9,d3d11,d3d10core,{(DxvkSettings.VKD3DEnabled && wineD3D ? ",d3d12," : "")}dxgi={(wineD3D ? "b" : "n,b")}");
  
          if (!string.IsNullOrEmpty(Settings.DebugVars))
          {
@@ -338,6 +338,10 @@ index 8216526f..89dbd052 100644
 +        }
 +        else
 +        {
++            if (wineD3D)
++            {
++                DxvkSettings.Environment.Add("PROTON_USE_WINED3D", "1");
++            }
 +            DxvkSettings.Environment.Remove("DXVK_CONFIG_FILE");
 +            DxvkSettings.Environment.Remove("DXVK_STATE_CACHE_PATH");
 +            wineEnvironmentVariables.Add("STEAM_COMPAT_DATA_PATH", Settings.ProtonPrefix);
@@ -348,15 +352,18 @@ index 8216526f..89dbd052 100644
 +                    wineEnvironmentVariables.Add("PROTON_NO_ESYNC", "1");
 +                wineEnvironmentVariables.Add("PROTON_NO_FSYNC", "1");
 +            }
-+            var compatMounts = new System.Text.StringBuilder(System.Environment.GetEnvironmentVariable("STEAM_COMPAT_MOUNTS") ?? "");
-+            compatMounts.Append($":{Settings.GameConfigPath}:");
 +            if (!string.IsNullOrEmpty(Settings.RuntimePath))
 +            {
-+                var runPath = System.Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
-+                for (int i = 0; i < 10; i++)
-+                    compatMounts.Append($"{runPath}/discord-ipc-{i}:{runPath}/app/com.discordapp.Discord/discord-ipc-{i}:{runPath}/snap.discord-cananry/discord-ipc-{i}:");
++                var compatMounts = new System.Text.StringBuilder(System.Environment.GetEnvironmentVariable("STEAM_COMPAT_MOUNTS") ?? "");
++                compatMounts.Append($":{Settings.GameConfigPath}:");
++                if (!string.IsNullOrEmpty(Settings.RuntimePath))
++                {
++                    var runPath = System.Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
++                    for (int i = 0; i < 10; i++)
++                        compatMounts.Append($"{runPath}/discord-ipc-{i}:{runPath}/app/com.discordapp.Discord/discord-ipc-{i}:{runPath}/snap.discord-cananry/discord-ipc-{i}:");
++                }
++                wineEnvironmentVariables.Add("STEAM_COMPAT_MOUNTS", compatMounts.ToString().Trim(':'));
 +            }
-+            wineEnvironmentVariables.Add("STEAM_COMPAT_MOUNTS", compatMounts.ToString().Trim(':'));
          }
  
 -        wineEnviromentVariables.Add("DXVK_HUD", dxvkHud);
@@ -385,7 +392,7 @@ index 8216526f..89dbd052 100644
          {
              psi.ArgumentList.Insert(1, $"--env={envVar.Key}={envVar.Value}");
          }
-@@ -257,18 +370,58 @@ public class CompatibilityTools
+@@ -257,18 +377,58 @@ public class CompatibilityTools
      {
          var wineDbg = RunInPrefix("winedbg --command \"info procmap\"", redirectOutput: true);
          var output = wineDbg.StandardOutput.ReadToEnd();
@@ -448,7 +455,7 @@ index 8216526f..89dbd052 100644
          var output = winePath.StandardOutput.ReadToEnd();
          return output.Split('\n', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
      }
-@@ -282,7 +435,7 @@ public class CompatibilityTools
+@@ -282,7 +442,7 @@ public class CompatibilityTools
  
      public void Kill()
      {
@@ -521,10 +528,10 @@ index 50fa98d9..00000000
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/DxvkSettings.cs b/src/XIVLauncher.Common.Unix/Compatibility/DxvkSettings.cs
 new file mode 100644
-index 00000000..db657bbc
+index 00000000..482d7b68
 --- /dev/null
 +++ b/src/XIVLauncher.Common.Unix/Compatibility/DxvkSettings.cs
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,90 @@
 +using System.IO;
 +using System.Collections.Generic;
 +using System.Text.RegularExpressions;
@@ -537,17 +544,20 @@ index 00000000..db657bbc
 +{
 +    public bool Enabled { get; }
 +
++    public bool VKD3DEnabled { get; }
++
 +    public string FolderName { get; }
 +
 +    public string DownloadUrl { get; }
 +
 +    public Dictionary<string, string> Environment { get; }
 +
-+    public DxvkSettings(string folder, string url, string storageFolder, bool async, int maxFrameRate, bool dxvkHudEnabled, string dxvkHudString, bool mangoHudEnabled = false, bool mangoHudCustomIsFile = false, string customMangoHud = "", bool enabled = true)
++    public DxvkSettings(string folder, string url, string storageFolder, bool async, int maxFrameRate, bool dxvkHudEnabled, string dxvkHudString, bool mangoHudEnabled = false, bool mangoHudCustomIsFile = false, string customMangoHud = "", bool enabled = true, bool vkd3d = false)
 +    {
 +        FolderName = folder;
 +        DownloadUrl = url;
 +        Enabled = enabled;
++        VKD3DEnabled = vkd3d;
 +
 +        var dxvkConfigPath = new DirectoryInfo(Path.Combine(storageFolder, "compatibilitytool", "dxvk"));
 +        Environment = new Dictionary<string, string>

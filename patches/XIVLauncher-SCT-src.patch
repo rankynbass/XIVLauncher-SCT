@@ -719,10 +719,10 @@ index 5322502..6028d6f 100644
  
 diff --git a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabDxvk.cs b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabDxvk.cs
 new file mode 100644
-index 0000000..ea45d14
+index 0000000..8cde9d1
 --- /dev/null
 +++ b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabDxvk.cs
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,139 @@
 +using System.Numerics;
 +using System.Runtime.InteropServices;
 +using ImGuiNET;
@@ -814,6 +814,11 @@ index 0000000..ea45d14
 +            },
 +
 +            new NumericSettingsEntry("Frame Rate Limit", "Set a frame rate limit, and DXVK will try not exceed it. Use 0 for unlimited.", () => Program.Config.DxvkFrameRateLimit ?? 0, i => Program.Config.DxvkFrameRateLimit = i, 0, 1000)
++            {
++                CheckVisibility = () => dxvkVersionSetting.Value != "DISABLED",
++            },
++
++            new SettingsEntry<bool>("Experimental Directx12 Support (vkd3d)", "Enable DX12 support via Proton's vkd3d. Currently does nothing.", () => Program.Config.VKD3DEnabled ?? false, b => Program.Config.VKD3DEnabled = b)
 +            {
 +                CheckVisibility = () => dxvkVersionSetting.Value != "DISABLED",
 +            },
@@ -1480,7 +1485,7 @@ index d8bd158..7b472b3 100644
              App.FinishFromUpdateWarn();
          }
 diff --git a/src/XIVLauncher.Core/Configuration/ILauncherConfig.cs b/src/XIVLauncher.Core/Configuration/ILauncherConfig.cs
-index c7e72e0..f7f2ca5 100644
+index c7e72e0..72a972b 100644
 --- a/src/XIVLauncher.Core/Configuration/ILauncherConfig.cs
 +++ b/src/XIVLauncher.Core/Configuration/ILauncherConfig.cs
 @@ -3,6 +3,7 @@ using XIVLauncher.Common.Addon;
@@ -1502,7 +1507,7 @@ index c7e72e0..f7f2ca5 100644
  
      public string? WineBinaryPath { get; set; }
  
-@@ -70,19 +73,55 @@ public interface ILauncherConfig
+@@ -70,19 +73,57 @@ public interface ILauncherConfig
  
      public bool? DxvkAsyncEnabled { get; set; }
  
@@ -1526,6 +1531,8 @@ index c7e72e0..f7f2ca5 100644
 +    public string? MangoHudCustomString { get; set; }
 +
 +    public string? MangoHudCustomFile { get; set; }
++
++    public bool? VKD3DEnabled { get; set; }
  
      public string? WineDebugVars { get; set; }
  
@@ -1830,7 +1837,7 @@ index 0000000..da8d089
 +}
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Core/Program.cs b/src/XIVLauncher.Core/Program.cs
-index 4a68973..65e6983 100644
+index 4a68973..1d54b0f 100644
 --- a/src/XIVLauncher.Core/Program.cs
 +++ b/src/XIVLauncher.Core/Program.cs
 @@ -22,6 +22,7 @@ using XIVLauncher.Core.Accounts.Secrets.Providers;
@@ -1888,7 +1895,7 @@ index 4a68973..65e6983 100644
  
          Config.PatchPath ??= storage.GetFolder("patch");
          Config.PatchAcquisitionMethod ??= AcquisitionMethod.Aria;
-@@ -115,17 +129,42 @@ class Program
+@@ -115,17 +129,43 @@ class Program
          Config.GlobalScale ??= 1.0f;
  
          Config.GameModeEnabled ??= false;
@@ -1914,6 +1921,7 @@ index 4a68973..65e6983 100644
 +        Config.MangoHud ??= MangoHud.None;
 +        Config.MangoHudCustomString ??= Dxvk.MANGOHUD_CONFIG;
 +        Config.MangoHudCustomFile ??= Dxvk.MANGOHUD_CONFIGFILE;
++        Config.VKD3DEnabled ??= false;
 +
 +        Config.SteamPath = SteamInstallPath;
 +        Config.ProtonVersion = Proton.VersionExists(Config.ProtonVersion) ? Config.ProtonVersion : Proton.GetDefaultVersion();
@@ -1934,7 +1942,7 @@ index 4a68973..65e6983 100644
      }
  
      public const uint STEAM_APP_ID = 39210;
-@@ -134,7 +173,31 @@ class Program
+@@ -134,7 +174,31 @@ class Program
      private static void Main(string[] args)
      {
          mainargs = args;
@@ -1967,7 +1975,7 @@ index 4a68973..65e6983 100644
  
          if (CoreEnvironmentSettings.ClearAll)
          {
-@@ -148,10 +211,11 @@ class Program
+@@ -148,10 +212,11 @@ class Program
              if (CoreEnvironmentSettings.ClearTools) ClearTools();
              if (CoreEnvironmentSettings.ClearLogs) ClearLogs();
          }
@@ -1981,7 +1989,7 @@ index 4a68973..65e6983 100644
          Secrets = GetSecretProvider(storage);
  
          Loc.SetupWithFallbacks();
-@@ -224,7 +288,7 @@ class Program
+@@ -224,7 +289,7 @@ class Program
  
          // Create window, GraphicsDevice, and all resources necessary for the demo.
          VeldridStartup.CreateWindowAndGraphicsDevice(
@@ -1990,7 +1998,7 @@ index 4a68973..65e6983 100644
              new GraphicsDeviceOptions(false, null, true, ResourceBindingModel.Improved, true, true),
              out window,
              out gd);
-@@ -238,15 +302,13 @@ class Program
+@@ -238,15 +303,13 @@ class Program
          cl = gd.ResourceFactory.CreateCommandList();
          Log.Debug("Veldrid OK!");
  
@@ -2007,7 +2015,7 @@ index 4a68973..65e6983 100644
          if (Config.DoVersionCheck ?? false)
          {
              var versionCheckResult = UpdateCheck.CheckForUpdate().GetAwaiter().GetResult();
-@@ -254,7 +316,6 @@ class Program
+@@ -254,7 +317,6 @@ class Program
              if (versionCheckResult.Success)
                  needUpdate = versionCheckResult.NeedUpdate;
          }   
@@ -2015,7 +2023,7 @@ index 4a68973..65e6983 100644
  
          needUpdate = CoreEnvironmentSettings.IsUpgrade ? true : needUpdate;
  
-@@ -317,13 +378,16 @@ class Program
+@@ -317,13 +379,16 @@ class Program
  
      public static void CreateCompatToolsInstance()
      {
@@ -2028,7 +2036,7 @@ index 4a68973..65e6983 100644
 +        app3 = string.IsNullOrEmpty(Config.HelperApp3) ? "" : new FileInfo(Config.HelperApp3).DirectoryName ?? "";
 +        mangohud = File.Exists(Config.MangoHudCustomFile ?? "") && Config.MangoHud == MangoHud.CustomFile ? new FileInfo(Config.MangoHudCustomFile).FullName : "";
 +        var extraEnvVars = new Dictionary<string, string>() {{"PRESSURE_VESSEL_FILESYSTEMS_RW", $"{app1}:{app2}:{app3}:{mangohud}".Trim(':')}};
-+        var dxvkSettings = new DxvkSettings(Dxvk.FolderName, Dxvk.DownloadUrl, storage.Root.FullName, Dxvk.AsyncEnabled, Dxvk.FrameRateLimit, Dxvk.DxvkHudEnabled, Dxvk.DxvkHudString, Dxvk.MangoHudEnabled, Dxvk.MangoHudCustomIsFile, Dxvk.MangoHudString, Dxvk.Enabled);
++        var dxvkSettings = new DxvkSettings(Dxvk.FolderName, Dxvk.DownloadUrl, storage.Root.FullName, Dxvk.AsyncEnabled, Dxvk.FrameRateLimit, Dxvk.DxvkHudEnabled, Dxvk.DxvkHudString, Dxvk.MangoHudEnabled, Dxvk.MangoHudCustomIsFile, Dxvk.MangoHudString, Dxvk.Enabled,  Dxvk.VKD3DEnabled);
 +        var wineSettings = new WineSettings(Wine.IsManagedWine, Wine.CustomWinePath, Wine.FolderName, Wine.DownloadUrl, storage.Root, Wine.DebugVars, Wine.LogFile, Wine.Prefix, Wine.ESyncEnabled, Wine.FSyncEnabled, Wine.ProtonInfo);
          var toolsFolder = storage.GetFolder("compatibilitytool");
 -        Directory.CreateDirectory(Path.Combine(toolsFolder.FullName, "dxvk"));
@@ -2038,7 +2046,7 @@ index 4a68973..65e6983 100644
      }
  
      public static void ShowWindow()
-@@ -383,6 +447,14 @@ class Program
+@@ -383,6 +448,14 @@ class Program
      {
          storage.GetFolder("wineprefix").Delete(true);
          storage.GetFolder("wineprefix");
@@ -2053,7 +2061,7 @@ index 4a68973..65e6983 100644
      }
  
      public static void ClearPlugins(bool tsbutton = false)
-@@ -410,9 +482,22 @@ class Program
+@@ -410,9 +483,22 @@ class Program
  
      public static void ClearTools(bool tsbutton = false)
      {
@@ -2079,7 +2087,7 @@ index 4a68973..65e6983 100644
          if (tsbutton) CreateCompatToolsInstance();
      }
  
-@@ -436,4 +521,61 @@ class Program
+@@ -436,4 +522,61 @@ class Program
          ClearTools(tsbutton);
          ClearLogs(true);
      }
@@ -10283,10 +10291,10 @@ ATL1t6
 
 diff --git a/src/XIVLauncher.Core/UnixCompatibility/Dxvk.cs b/src/XIVLauncher.Core/UnixCompatibility/Dxvk.cs
 new file mode 100644
-index 0000000..0fe58c0
+index 0000000..7acb7ae
 --- /dev/null
 +++ b/src/XIVLauncher.Core/UnixCompatibility/Dxvk.cs
-@@ -0,0 +1,166 @@
+@@ -0,0 +1,168 @@
 +using System;
 +using System.Collections.Generic;
 +using System.Collections.Specialized;
@@ -10347,6 +10355,8 @@ index 0000000..0fe58c0
 +    public static string MANGOHUD_CONFIGFILE => Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".config", "MangoHud", "MangoHud.conf");
 +
 +    public static Dictionary<string, Dictionary<string, string>> Versions { get; private set; }
++
++    public static bool VKD3DEnabled => Program.Config.VKD3DEnabled ?? false;
 +
 +    static Dxvk()
 +    {
@@ -10455,7 +10465,7 @@ index 0000000..0fe58c0
 +
 diff --git a/src/XIVLauncher.Core/UnixCompatibility/Proton.cs b/src/XIVLauncher.Core/UnixCompatibility/Proton.cs
 new file mode 100644
-index 0000000..5016b28
+index 0000000..92ae495
 --- /dev/null
 +++ b/src/XIVLauncher.Core/UnixCompatibility/Proton.cs
 @@ -0,0 +1,177 @@
@@ -10515,7 +10525,7 @@ index 0000000..5016b28
 +            try
 +            {
 +
-+                var commonDirs = commonDir.GetDirectories("*Proton*");
++                var commonDirs = commonDir.GetDirectories("*Proton*").OrderBy(x => x.Name);
 +                foreach (var dir in commonDirs)
 +                    if (File.Exists(Path.Combine(dir.FullName,"proton"))) Versions[dir.Name] = new Dictionary<string, string>() { {"path", dir.FullName} };
 +            }
@@ -10525,7 +10535,7 @@ index 0000000..5016b28
 +            }
 +            try
 +            {
-+                var commonDirs2 = commonDir.GetDirectories("SteamLinuxRuntime_*");
++                var commonDirs2 = commonDir.GetDirectories("SteamLinuxRuntime_*").OrderBy(x => x.Name);
 +                foreach (var dir in commonDirs2)
 +                    if (File.Exists(Path.Combine(dir.FullName,"_v2-entry-point"))) Runtimes[dir.Name] = new Dictionary<string, string>() { {"path", dir.FullName} };
 +                    else Log.Verbose($"Couldn't find runtime at {dir.FullName}.");
@@ -10536,7 +10546,7 @@ index 0000000..5016b28
 +            }
 +            try
 +            {
-+                var compatDirs = compatDir.GetDirectories("*Proton*");
++                var compatDirs = compatDir.GetDirectories("*Proton*").OrderBy(x => x.Name);
 +                foreach (var dir in compatDirs)
 +                    if (File.Exists(Path.Combine(dir.FullName,"proton"))) Versions[dir.Name] = new Dictionary<string, string>() { {"path", dir.FullName} };
 +            }
@@ -10546,7 +10556,7 @@ index 0000000..5016b28
 +            }
 +            try
 +            {
-+                var compatDirs2 = compatDir.GetDirectories("SteamLinuxRuntime_*");
++                var compatDirs2 = compatDir.GetDirectories("SteamLinuxRuntime_*").OrderBy(x => x.Name);
 +                foreach (var dir in compatDirs2)
 +                    if (File.Exists(Path.Combine(dir.FullName,"_v2-entry-point"))) Runtimes[dir.Name] = new Dictionary<string, string>() { {"path", dir.FullName} };
 +            }
@@ -10558,7 +10568,7 @@ index 0000000..5016b28
 +            {
 +                try
 +                {
-+                    var compatDirs = steamlib.GetDirectories("*Proton*");
++                    var compatDirs = steamlib.GetDirectories("*Proton*").OrderBy(x => x.Name);
 +                    foreach (var dir in compatDirs)
 +                        if (File.Exists(Path.Combine(dir.FullName,"proton"))) Versions[dir.Name] = new Dictionary<string, string>() { {"path", dir.FullName} };
 +                }
@@ -10568,7 +10578,7 @@ index 0000000..5016b28
 +                }
 +                try
 +                {
-+                    var compatDirs2 = steamlib.GetDirectories("SteamLinuxRuntime_*");
++                    var compatDirs2 = steamlib.GetDirectories("SteamLinuxRuntime_*").OrderBy(x => x.Name);
 +                    foreach (var dir in compatDirs2)
 +                        if (File.Exists(Path.Combine(dir.FullName,"_v2-entry-point"))) Runtimes[dir.Name] = new Dictionary<string, string>() { {"path", dir.FullName} };
 +                }
@@ -10825,7 +10835,7 @@ index bbe333d..6cca341 100644
              var localVersion = Version.Parse(AppUtil.GetAssemblyVersion());
  
 diff --git a/src/XIVLauncher.Core/XIVLauncher.Core.csproj b/src/XIVLauncher.Core/XIVLauncher.Core.csproj
-index 69fc52d..db4f6dc 100644
+index 69fc52d..39b9cca 100644
 --- a/src/XIVLauncher.Core/XIVLauncher.Core.csproj
 +++ b/src/XIVLauncher.Core/XIVLauncher.Core.csproj
 @@ -9,7 +9,7 @@
@@ -10833,7 +10843,7 @@ index 69fc52d..db4f6dc 100644
      <ApplicationIcon>Resources\dalamud_icon.ico</ApplicationIcon>
  
 -    <Version>1.0.6.0</Version>
-+    <Version>0.6.1</Version>
++    <Version>0.6.2</Version>
      <FileVersion>$(Version)</FileVersion>
      <AssemblyVersion>$(Version)</AssemblyVersion>
  
