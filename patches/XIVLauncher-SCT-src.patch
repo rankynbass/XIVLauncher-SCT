@@ -548,7 +548,7 @@ index e50ebed..5e86faa 100644
  
          base.Draw();
 diff --git a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabAbout.cs b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabAbout.cs
-index a58992f..0c6a7e8 100644
+index a58992f..8e02196 100644
 --- a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabAbout.cs
 +++ b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabAbout.cs
 @@ -11,7 +11,10 @@ public class SettingsTabAbout : SettingsTab
@@ -563,7 +563,15 @@ index a58992f..0c6a7e8 100644
  
      public override string Title => "About";
  
-@@ -30,23 +33,29 @@ public class SettingsTabAbout : SettingsTab
+@@ -24,29 +27,35 @@ public class SettingsTabAbout : SettingsTab
+     {
+         ImGui.Image(this.logoTexture.ImGuiHandle, new Vector2(256) * ImGuiHelpers.GlobalScale);
+ 
+-        ImGui.Text($"XIVLauncher Core v{AppUtil.GetAssemblyVersion()}({AppUtil.GetGitHash()})");
+-        ImGui.Text("By goaaats");
++        ImGui.Text($"XIVLauncher-SCT v{AppUtil.GetAssemblyVersion()} ({AppUtil.GetGitHash()})");
++        ImGui.Text("By Rankyn Bass. Based on XIVLauncher Core by goaaats");
+ 
          if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
              AppUtil.OpenBrowser("https://github.com/goaaats");
  
@@ -572,12 +580,14 @@ index a58992f..0c6a7e8 100644
  
          if (ImGui.Button("Open Repository"))
          {
-             AppUtil.OpenBrowser("https://github.com/goatcorp/XIVLauncher.Core");
+-            AppUtil.OpenBrowser("https://github.com/goatcorp/XIVLauncher.Core");
++            AppUtil.OpenBrowser("https://github.com/rankynbass/XIVLauncher-SCT");
          }
  
+-        if (ImGui.Button("Join our Discord"))
 +        ImGui.Dummy(new Vector2(20) * ImGuiHelpers.GlobalScale);
 +
-         if (ImGui.Button("Join our Discord"))
++        if (ImGui.Button("Join the XIVLauncher Discord"))
          {
              AppUtil.OpenBrowser("https://discord.gg/3NMcUV5");
          }
