@@ -4,5 +4,5 @@
   "commandline" "/xivlauncher %verb%"
   "require_tool_appid" "1628350"
   "use_sessions" "1"
-  "compatmanager_layer_name" "xivlauncher"
+  "compatmanager_layer_name" "xivlauncher-sct"
 }
