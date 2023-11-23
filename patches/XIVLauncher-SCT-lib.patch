@@ -1,3 +1,156 @@
+diff --git a/src/.editorconfig b/src/.editorconfig
+new file mode 100644
+index 00000000..0ae30cf9
+--- /dev/null
++++ b/src/.editorconfig
+@@ -0,0 +1,147 @@
++root = true
++# top-most EditorConfig file
++
++[*]
++charset = utf-8
++
++end_of_line = lf
++insert_final_newline = true
++
++# 4 space indentation
++indent_style = space
++indent_size = 4
++
++# disable redundant style warnings
++
++# Microsoft .NET properties
++csharp_indent_braces = false
++csharp_new_line_before_catch = true
++csharp_new_line_before_else = true
++csharp_new_line_before_finally = true
++csharp_new_line_before_members_in_object_initializers = false
++csharp_new_line_before_open_brace = all
++csharp_preferred_modifier_order = public, private, protected, internal, new, abstract, virtual, sealed, override, static, readonly, extern, unsafe, volatile, async:suggestion
++csharp_style_var_elsewhere = true:suggestion
++csharp_style_var_for_built_in_types = true:suggestion
++csharp_style_var_when_type_is_apparent = true:suggestion
++dotnet_code_quality_unused_parameters = non_public
++dotnet_naming_rule.event_rule.severity = warning
++dotnet_naming_rule.event_rule.style = upper_camel_case_style
++dotnet_naming_rule.event_rule.symbols = event_symbols
++dotnet_naming_rule.private_constants_rule.severity = warning
++dotnet_naming_rule.private_constants_rule.style = upper_camel_case_style
++dotnet_naming_rule.private_constants_rule.symbols = private_constants_symbols
++dotnet_naming_rule.private_instance_fields_rule.severity = warning
++dotnet_naming_rule.private_instance_fields_rule.style = lower_camel_case_style
++dotnet_naming_rule.private_instance_fields_rule.symbols = private_instance_fields_symbols
++dotnet_naming_rule.private_static_fields_rule.severity = warning
++dotnet_naming_rule.private_static_fields_rule.style = lower_camel_case_style
++dotnet_naming_rule.private_static_fields_rule.symbols = private_static_fields_symbols
++dotnet_naming_rule.private_static_readonly_rule.severity = warning
++dotnet_naming_rule.private_static_readonly_rule.style = upper_camel_case_style
++dotnet_naming_rule.private_static_readonly_rule.symbols = private_static_readonly_symbols
++dotnet_naming_style.lower_camel_case_style.capitalization = camel_case
++dotnet_naming_style.on_upper_camel_case_style.capitalization = pascal_case
++dotnet_naming_style.on_upper_camel_case_style.required_prefix = On
++dotnet_naming_style.upper_camel_case_style.capitalization = pascal_case
++dotnet_naming_symbols.event_symbols.applicable_accessibilities = *
++dotnet_naming_symbols.event_symbols.applicable_kinds = event
++dotnet_naming_symbols.private_constants_symbols.applicable_accessibilities = private
++dotnet_naming_symbols.private_constants_symbols.applicable_kinds = field
++dotnet_naming_symbols.private_constants_symbols.required_modifiers = const
++dotnet_naming_symbols.private_instance_fields_symbols.applicable_accessibilities = private
++dotnet_naming_symbols.private_instance_fields_symbols.applicable_kinds = field
++dotnet_naming_symbols.private_static_fields_symbols.applicable_accessibilities = private
++dotnet_naming_symbols.private_static_fields_symbols.applicable_kinds = field
++dotnet_naming_symbols.private_static_fields_symbols.required_modifiers = static
++dotnet_naming_symbols.private_static_readonly_symbols.applicable_accessibilities = private
++dotnet_naming_symbols.private_static_readonly_symbols.applicable_kinds = field
++dotnet_naming_symbols.private_static_readonly_symbols.required_modifiers = static,readonly
++dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:suggestion
++dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:suggestion
++dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:suggestion
++dotnet_style_predefined_type_for_member_access = true:suggestion
++dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
++dotnet_style_parentheses_in_other_operators = always_for_clarity:silent
++dotnet_style_object_initializer = false
++dotnet_style_qualification_for_event = true:suggestion
++dotnet_style_qualification_for_field = true:suggestion
++dotnet_style_qualification_for_method = true:suggestion
++dotnet_style_qualification_for_property = true:suggestion
++csharp_space_between_method_call_empty_parameter_list_parentheses = false
++csharp_space_between_method_call_parameter_list_parentheses = false
++csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
++csharp_space_between_empty_square_brackets = false
++csharp_space_before_semicolon_in_for_statement = false
++csharp_space_before_open_square_brackets = false
++csharp_space_before_comma = false
++csharp_space_after_keywords_in_control_flow_statements = true
++csharp_space_after_comma = true
++csharp_space_after_cast = false
++csharp_space_around_binary_operators = before_and_after
++csharp_space_between_method_declaration_name_and_open_parenthesis = false
++csharp_space_between_method_declaration_parameter_list_parentheses = false
++csharp_space_between_parentheses = none
++csharp_space_between_square_brackets = false
++
++# ReSharper properties
++resharper_align_linq_query = true
++resharper_align_multiline_argument = true
++resharper_align_multiline_calls_chain = true
++resharper_align_multiline_expression = true
++resharper_align_multiline_extends_list = true
++resharper_align_multiline_for_stmt = true
++resharper_align_multline_type_parameter_constrains = true
++resharper_align_multline_type_parameter_list = true
++resharper_apply_on_completion = true
++resharper_auto_property_can_be_made_get_only_global_highlighting = none
++resharper_auto_property_can_be_made_get_only_local_highlighting = none
++resharper_autodetect_indent_settings = true
++resharper_braces_for_ifelse = required_for_multiline
++resharper_can_use_global_alias = false
++resharper_csharp_align_multiline_parameter = true
++resharper_csharp_align_multiple_declaration = true
++resharper_csharp_empty_block_style = multiline
++resharper_csharp_int_align_comments = true
++resharper_csharp_new_line_before_while = true
++resharper_csharp_wrap_after_declaration_lpar = true
++resharper_enforce_line_ending_style = true
++resharper_member_can_be_private_global_highlighting = none
++resharper_member_can_be_private_local_highlighting = none
++resharper_new_line_before_finally = false
++resharper_place_accessorholder_attribute_on_same_line = false
++resharper_place_field_attribute_on_same_line = false
++resharper_show_autodetect_configure_formatting_tip = false
++resharper_use_indent_from_vs = false
++
++# ReSharper inspection severities
++resharper_arrange_missing_parentheses_highlighting = hint
++resharper_arrange_redundant_parentheses_highlighting = hint
++resharper_arrange_this_qualifier_highlighting = none
++resharper_arrange_type_member_modifiers_highlighting = hint
++resharper_arrange_type_modifiers_highlighting = hint
++resharper_built_in_type_reference_style_for_member_access_highlighting = hint
++resharper_built_in_type_reference_style_highlighting = none
++resharper_foreach_can_be_converted_to_query_using_another_get_enumerator_highlighting = none
++resharper_foreach_can_be_partly_converted_to_query_using_another_get_enumerator_highlighting = none
++resharper_invert_if_highlighting = none
++resharper_loop_can_be_converted_to_query_highlighting = none
++resharper_method_has_async_overload_highlighting = none
++resharper_private_field_can_be_converted_to_local_variable_highlighting = none
++resharper_redundant_base_qualifier_highlighting = none
++resharper_suggest_var_or_type_built_in_types_highlighting = hint
++resharper_suggest_var_or_type_elsewhere_highlighting = hint
++resharper_suggest_var_or_type_simple_types_highlighting = hint
++resharper_unused_auto_property_accessor_global_highlighting = none
++csharp_style_deconstructed_variable_declaration = true:silent
++
++[*.{appxmanifest,asax,ascx,aspx,axaml,axml,build,c,c++,cc,cginc,compute,config,cp,cpp,cs,cshtml,csproj,css,cu,cuh,cxx,dbml,discomap,dtd,h,hh,hlsl,hlsli,hlslinc,hpp,htm,html,hxx,inc,inl,ino,ipp,js,json,jsproj,jsx,lsproj,master,mpp,mq4,mq5,mqh,njsproj,nuspec,paml,proj,props,proto,razor,resjson,resw,resx,skin,StyleCop,targets,tasks,tpp,ts,tsx,usf,ush,vb,vbproj,xaml,xamlx,xml,xoml,xsd}]
++indent_style = space
++indent_size = 4
++tab_width = 4
++dotnet_style_parentheses_in_other_operators = always_for_clarity:silent
++
++[*.{yaml,yml}]
++indent_style = space
++indent_size = 2
++tab_width = 2
 diff --git a/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs b/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
 index 8216526f..ffe33152 100644
 --- a/src/XIVLauncher.Common.Unix/Compatibility/CompatibilityTools.cs
@@ -830,3 +983,510 @@ index ef1b8545..b2fde02c 100644
              return null;
          }
      }
+diff --git a/src/XIVLauncher.Common/Dalamud/AssetManager.cs b/src/XIVLauncher.Common/Dalamud/AssetManager.cs
+index ea64a579..0f675d76 100644
+--- a/src/XIVLauncher.Common/Dalamud/AssetManager.cs
++++ b/src/XIVLauncher.Common/Dalamud/AssetManager.cs
+@@ -113,7 +113,7 @@ namespace XIVLauncher.Common.Dalamud
+ 
+                 var packageUrl = info.PackageUrl;
+ 
+-                var tempPath = Path.GetTempFileName();
++                var tempPath = PlatformHelpers.GetTempFileName();
+ 
+                 if (File.Exists(tempPath))
+                     File.Delete(tempPath);
+diff --git a/src/XIVLauncher.Common/Game/Headlines.cs b/src/XIVLauncher.Common/Game/Headlines.cs
+index 4d664547..79a5ff79 100644
+--- a/src/XIVLauncher.Common/Game/Headlines.cs
++++ b/src/XIVLauncher.Common/Game/Headlines.cs
+@@ -1,4 +1,5 @@
+ ﻿using System;
++using System.Collections.Generic;
+ using System.Globalization;
+ using System.Text;
+ using System.Threading.Tasks;
+@@ -18,9 +19,6 @@ namespace XIVLauncher.Common.Game
+ 
+         [JsonProperty("pinned")]
+         public News[] Pinned { get; set; }
+-
+-        [JsonProperty("banner")]
+-        public Banner[] Banner { get; set; }
+     }
+ 
+     public class Banner
+@@ -30,6 +28,18 @@ namespace XIVLauncher.Common.Game
+ 
+         [JsonProperty("link")]
+         public Uri Link { get; set; }
++
++        [JsonProperty("order_priority")]
++        public int? OrderPriority { get; set; }
++
++        [JsonProperty("fix_order")]
++        public int? FixOrder { get; set; }
++    }
++
++    public class BannerRoot
++    {
++        [JsonProperty("banner")]
++        public List<Banner> Banner { get; set; }
+     }
+ 
+     public class News
+@@ -52,7 +62,7 @@ namespace XIVLauncher.Common.Game
+ 
+     public partial class Headlines
+     {
+-        public static async Task<Headlines> Get(Launcher game, ClientLanguage language, bool forceNa = false)
++        public static async Task<Headlines> GetNews(Launcher game, ClientLanguage language, bool forceNa = false)
+         {
+             var unixTimestamp = ApiHelpers.GetUnixMillis();
+             var langCode = language.GetLangCode(forceNa);
+@@ -62,6 +72,38 @@ namespace XIVLauncher.Common.Game
+ 
+             return JsonConvert.DeserializeObject<Headlines>(json, Converter.SETTINGS);
+         }
++
++        public static async Task<IReadOnlyList<Banner>> GetBanners(Launcher game, ClientLanguage language, bool forceNa = false)
++        {
++            var unixTimestamp = ApiHelpers.GetUnixMillis();
++            var langCode = language.GetLangCode(forceNa);
++            var url = $"https://frontier.ffxiv.com/v2/topics/{langCode}/banner.json?lang={langCode}&media=pcapp&_={unixTimestamp}";
++
++            var json = Encoding.UTF8.GetString(await game.DownloadAsLauncher(url, language, "application/json, text/plain, */*").ConfigureAwait(false));
++
++            return JsonConvert.DeserializeObject<BannerRoot>(json, Converter.SETTINGS).Banner;
++        }
++
++        public static async Task<IReadOnlyCollection<Banner>> GetMessage(Launcher game, ClientLanguage language, bool forceNa = false)
++        {
++            var unixTimestamp = ApiHelpers.GetUnixMillis();
++            var langCode = language.GetLangCode(forceNa);
++            var url = $"https://frontier.ffxiv.com/v2/notice/{langCode}/message.json?_={unixTimestamp}";
++
++            var json = Encoding.UTF8.GetString(await game.DownloadAsLauncher(url, language, "application/json, text/plain, */*").ConfigureAwait(false));
++
++            return JsonConvert.DeserializeObject<BannerRoot>(json, Converter.SETTINGS).Banner;
++        }
++
++        public static async Task<IReadOnlyCollection<Banner>> GetWorlds(Launcher game, ClientLanguage language)
++        {
++            var unixTimestamp = ApiHelpers.GetUnixMillis();
++            var url = $"https://frontier.ffxiv.com/v2/world/status.json?_={unixTimestamp}";
++
++            var json = Encoding.UTF8.GetString(await game.DownloadAsLauncher(url, language, "application/json, text/plain, */*").ConfigureAwait(false));
++
++            return JsonConvert.DeserializeObject<BannerRoot>(json, Converter.SETTINGS).Banner;
++        }
+     }
+ 
+     internal static class Converter
+diff --git a/src/XIVLauncher.Common/Game/Launcher.cs b/src/XIVLauncher.Common/Game/Launcher.cs
+index f9b28d13..97d61d64 100644
+--- a/src/XIVLauncher.Common/Game/Launcher.cs
++++ b/src/XIVLauncher.Common/Game/Launcher.cs
+@@ -1,5 +1,3 @@
+-
+-
+ #nullable enable
+ 
+ using System;
+@@ -38,15 +36,13 @@ public class Launcher
+     private readonly HttpClient client;
+     private readonly string frontierUrlTemplate;
+ 
+-    private const string FALLBACK_FRONTIER_URL_TEMPLATE = "https://launcher.finalfantasyxiv.com/v620/index.html?rc_lang={0}&time={1}";
+-
+-    public Launcher(ISteam? steam, IUniqueIdCache uniqueIdCache, ISettings settings, string? frontierUrl =  null)
++    public Launcher(ISteam? steam, IUniqueIdCache uniqueIdCache, ISettings settings, string frontierUrl)
+     {
+         this.steam = steam;
+         this.uniqueIdCache = uniqueIdCache;
+         this.settings = settings;
+-        this.frontierUrlTemplate =
+-            string.IsNullOrWhiteSpace(frontierUrl) ? FALLBACK_FRONTIER_URL_TEMPLATE : frontierUrl;
++
++        this.frontierUrlTemplate = frontierUrl ?? throw new Exception("Frontier URL template is null, this is now required");
+ 
+         ServicePointManager.Expect100Continue = false;
+ 
+@@ -71,7 +67,7 @@ public class Launcher
+         this.client = new HttpClient(handler);
+     }
+ 
+-    public Launcher(byte[] steamTicket, IUniqueIdCache uniqueIdCache, ISettings settings, string? frontierUrl = null)
++    public Launcher(byte[] steamTicket, IUniqueIdCache uniqueIdCache, ISettings settings, string frontierUrl)
+         : this(steam: null, uniqueIdCache, settings, frontierUrl)
+     {
+         this.steamTicket = steamTicket;
+@@ -625,7 +621,7 @@ public class Launcher
+         }
+     }
+ 
+-    public async Task<bool> GetLoginStatus()
++    public async Task<GateStatus> GetLoginStatus()
+     {
+         try
+         {
+@@ -633,11 +629,11 @@ public class Launcher
+                 await DownloadAsLauncher(
+                     $"https://frontier.ffxiv.com/worldStatus/login_status.json?_={ApiHelpers.GetUnixMillis()}", ClientLanguage.English).ConfigureAwait(true));
+ 
+-            return Convert.ToBoolean(int.Parse(reply[10].ToString()));
++            return JsonConvert.DeserializeObject<GateStatus>(reply);
+         }
+         catch (Exception exc)
+         {
+-            throw new Exception("Could not get gate status", exc);
++            throw new Exception("Could not get login status", exc);
+         }
+     }
+ 
+@@ -675,6 +671,7 @@ public class Launcher
+         request.Headers.AddWithoutValidation("Origin", "https://launcher.finalfantasyxiv.com");
+ 
+         request.Headers.AddWithoutValidation("Referer", GenerateFrontierReferer(language));
++        request.Headers.AddWithoutValidation("Connection", "Keep-Alive");
+ 
+         var resp = await this.client.SendAsync(request);
+         return await resp.Content.ReadAsByteArrayAsync();
+diff --git a/src/XIVLauncher.Common/Patching/IndexedZiPatch/IndexedZiPatchIndexLocalInstaller.cs b/src/XIVLauncher.Common/Patching/IndexedZiPatch/IndexedZiPatchIndexLocalInstaller.cs
+index 81e680af..2638e3f0 100644
+--- a/src/XIVLauncher.Common/Patching/IndexedZiPatch/IndexedZiPatchIndexLocalInstaller.cs
++++ b/src/XIVLauncher.Common/Patching/IndexedZiPatch/IndexedZiPatchIndexLocalInstaller.cs
+@@ -1,5 +1,4 @@
+-﻿using Serilog;
+-using System;
++﻿using System;
+ using System.Collections.Generic;
+ using System.Diagnostics;
+ using System.IO;
+@@ -152,4 +151,4 @@ namespace XIVLauncher.Common.Patching.IndexedZiPatch
+             return Task.CompletedTask;
+         }
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/XIVLauncher.Common/Patching/Util/FullDeflateStreamReader.cs b/src/XIVLauncher.Common/Patching/Util/FullDeflateStreamReader.cs
+index 392994bc..61edc026 100644
+--- a/src/XIVLauncher.Common/Patching/Util/FullDeflateStreamReader.cs
++++ b/src/XIVLauncher.Common/Patching/Util/FullDeflateStreamReader.cs
+@@ -1,6 +1,4 @@
+-﻿using System;
+-using System.IO;
+-using System.IO.Compression;
++﻿using System.IO.Compression;
+ // ReSharper disable InconsistentNaming
+ 
+ namespace XIVLauncher.Common.Patching.Util
+diff --git a/src/XIVLauncher.Common/Patching/ZiPatch/Util/SqexFileStream.cs b/src/XIVLauncher.Common/Patching/ZiPatch/Util/SqexFileStream.cs
+index 3661c6ff..5c0b9560 100644
+--- a/src/XIVLauncher.Common/Patching/ZiPatch/Util/SqexFileStream.cs
++++ b/src/XIVLauncher.Common/Patching/ZiPatch/Util/SqexFileStream.cs
+@@ -1,5 +1,4 @@
+-﻿using System;
+-using System.IO;
++﻿using System.IO;
+ using System.Threading;
+ 
+ namespace XIVLauncher.Common.Patching.ZiPatch.Util
+diff --git a/src/XIVLauncher.Common/Util/PlatformHelpers.cs b/src/XIVLauncher.Common/Util/PlatformHelpers.cs
+index d135b0b0..794f276c 100644
+--- a/src/XIVLauncher.Common/Util/PlatformHelpers.cs
++++ b/src/XIVLauncher.Common/Util/PlatformHelpers.cs
+@@ -31,7 +31,7 @@ public static class PlatformHelpers
+     public static string GetTempFileName()
+     {
+         // https://stackoverflow.com/a/50413126
+-        return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
++        return Path.Combine(Path.GetTempPath(), "xivlauncher_" + Guid.NewGuid());
+     }
+ 
+     public static void DeleteAndRecreateDirectory(DirectoryInfo dir)
+diff --git a/src/XIVLauncher/App.xaml.cs b/src/XIVLauncher/App.xaml.cs
+index 01bb776e..d0ec9abd 100644
+--- a/src/XIVLauncher/App.xaml.cs
++++ b/src/XIVLauncher/App.xaml.cs
+@@ -16,7 +16,6 @@ using Serilog.Events;
+ using XIVLauncher.Common;
+ using XIVLauncher.Common.Dalamud;
+ using XIVLauncher.Common.Game;
+-using XIVLauncher.Common.PlatformAbstractions;
+ using XIVLauncher.Common.Support;
+ using XIVLauncher.Common.Util;
+ using XIVLauncher.Common.Windows;
+diff --git a/src/XIVLauncher/Resources/CHANGELOG.txt b/src/XIVLauncher/Resources/CHANGELOG.txt
+index 591bd4db..0ee29365 100644
+--- a/src/XIVLauncher/Resources/CHANGELOG.txt
++++ b/src/XIVLauncher/Resources/CHANGELOG.txt
+@@ -1,8 +1,2 @@
+-﻿* Fixes an issue wherein the game repair feature may not have functioned correctly
+-* Fixes an issue wherein required data files for Dalamud may not have been downloaded correctly
+-* Adds a separate button to the login menu, which will open advanced login options, in addition to right-clicking
+-* Updated the localization files
+-    => Thanks to our dedicated localization team!
+-    
+-Hotfix:
+-* Fixes an issue wherein a window showing debug information may have been shown during patching
+\ No newline at end of file
++﻿* Fixes an issue wherein required data files for Dalamud may not have been downloaded correctly under certain conditions
++* Fixes an issue wherein the banners shown on the main page were outdated
+diff --git a/src/XIVLauncher/Windows/AdvancedSettingsWindow.xaml.cs b/src/XIVLauncher/Windows/AdvancedSettingsWindow.xaml.cs
+index c16daf66..ed274fd2 100644
+--- a/src/XIVLauncher/Windows/AdvancedSettingsWindow.xaml.cs
++++ b/src/XIVLauncher/Windows/AdvancedSettingsWindow.xaml.cs
+@@ -1,5 +1,4 @@
+-﻿using System;
+-using System.Windows;
++﻿using System.Windows;
+ using XIVLauncher.Windows.ViewModel;
+ 
+ namespace XIVLauncher.Windows
+diff --git a/src/XIVLauncher/Windows/MainWindow.xaml b/src/XIVLauncher/Windows/MainWindow.xaml
+index c5f11a33..1d0e4289 100644
+--- a/src/XIVLauncher/Windows/MainWindow.xaml
++++ b/src/XIVLauncher/Windows/MainWindow.xaml
+@@ -174,7 +174,7 @@
+                                     <StackPanel Orientation="Vertical"
+                                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                         <materialDesign:PackIcon Kind="Earth" Height="Auto"
+-                                                                 Width="Auto" x:Name="WorldStatusPackIcon" />
++                                                                 Width="Auto" Foreground="{Binding WorldStatusIconColor}"/>
+                                     </StackPanel>
+                                 </Button>
+ 
+diff --git a/src/XIVLauncher/Windows/MainWindow.xaml.cs b/src/XIVLauncher/Windows/MainWindow.xaml.cs
+index 1c5c04d1..89420daf 100644
+--- a/src/XIVLauncher/Windows/MainWindow.xaml.cs
++++ b/src/XIVLauncher/Windows/MainWindow.xaml.cs
+@@ -34,6 +34,7 @@ namespace XIVLauncher.Windows
+     {
+         private Timer _bannerChangeTimer;
+         private Headlines _headlines;
++        private IReadOnlyList<Banner> _banners;
+         private BitmapImage[] _bannerBitmaps;
+         private int _currentBannerIndex;
+         private bool _everShown = false;
+@@ -121,14 +122,20 @@ namespace XIVLauncher.Windows
+             {
+                 _bannerChangeTimer?.Stop();
+ 
+-                _headlines = await Headlines.Get(_launcher, App.Settings.Language.GetValueOrDefault(ClientLanguage.English), App.Settings.ForceNorthAmerica.GetValueOrDefault(false)).ConfigureAwait(false);
++                await Headlines.GetWorlds(_launcher, App.Settings.Language.GetValueOrDefault(ClientLanguage.English));
++                _banners = await Headlines.GetBanners(_launcher, App.Settings.Language.GetValueOrDefault(ClientLanguage.English), App.Settings.ForceNorthAmerica.GetValueOrDefault(false))
++                                          .ConfigureAwait(false);
++                await Headlines.GetMessage(_launcher, App.Settings.Language.GetValueOrDefault(ClientLanguage.English), App.Settings.ForceNorthAmerica.GetValueOrDefault(false))
++                               .ConfigureAwait(false);
++                _headlines = await Headlines.GetNews(_launcher, App.Settings.Language.GetValueOrDefault(ClientLanguage.English), App.Settings.ForceNorthAmerica.GetValueOrDefault(false))
++                                            .ConfigureAwait(false);
+ 
+-                _bannerBitmaps = new BitmapImage[_headlines.Banner.Length];
++                _bannerBitmaps = new BitmapImage[_banners.Count];
+                 _bannerDotList = new();
+ 
+-                for (var i = 0; i < _headlines.Banner.Length; i++)
++                for (var i = 0; i < _banners.Count; i++)
+                 {
+-                    var imageBytes = await _launcher.DownloadAsLauncher(_headlines.Banner[i].LsbBanner.ToString(), App.Settings.Language.GetValueOrDefault(ClientLanguage.English));
++                    var imageBytes = await _launcher.DownloadAsLauncher(_banners[i].LsbBanner.ToString(), App.Settings.Language.GetValueOrDefault(ClientLanguage.English));
+ 
+                     using var stream = new MemoryStream(imageBytes);
+ 
+@@ -157,7 +164,7 @@ namespace XIVLauncher.Windows
+                 {
+                     _bannerDotList.ToList().ForEach(x => x.Active = false);
+ 
+-                    if (_currentBannerIndex + 1 > _headlines.Banner.Length - 1)
++                    if (_currentBannerIndex + 1 > _banners.Count - 1)
+                         _currentBannerIndex = 0;
+                     else
+                         _currentBannerIndex++;
+@@ -176,8 +183,9 @@ namespace XIVLauncher.Windows
+ 
+                 Dispatcher.BeginInvoke(new Action(() => { NewsListView.ItemsSource = _headlines.News; }));
+             }
+-            catch (Exception)
++            catch (Exception ex)
+             {
++                Log.Error(ex, "Could not get news");
+                 Dispatcher.BeginInvoke(new Action(() =>
+                 {
+                     NewsListView.ItemsSource = new List<News> {new News {Title = Loc.Localize("NewsDlFailed", "Could not download news data."), Tag = "DlError"}};
+@@ -272,23 +280,6 @@ namespace XIVLauncher.Windows
+ 
+             this.SetDefaults();
+ 
+-            var worldStatusBrushOk = WorldStatusPackIcon.Foreground;
+-            // grey out world status icon while deferred check is running
+-            WorldStatusPackIcon.Foreground = new SolidColorBrush(Color.FromRgb(38, 38, 38));
+-
+-            _launcher.GetGateStatus(App.Settings.Language.GetValueOrDefault(ClientLanguage.English)).ContinueWith((resultTask) =>
+-            {
+-                try
+-                {
+-                    var brushToSet = resultTask.Result.Status ? worldStatusBrushOk : null;
+-                    Dispatcher.InvokeAsync(() =>  WorldStatusPackIcon.Foreground = brushToSet ?? new SolidColorBrush(Color.FromRgb(242, 24, 24)));
+-                }
+-                catch
+-                {
+-                    // ignored
+-                }
+-            });
+-
+             _accountManager = new AccountManager(App.Settings);
+ 
+             var savedAccount = _accountManager.CurrentAccount;
+@@ -359,7 +350,7 @@ namespace XIVLauncher.Windows
+             if (e.ChangedButton != MouseButton.Left)
+                 return;
+ 
+-            if (_headlines != null) Process.Start(_headlines.Banner[_currentBannerIndex].Link.ToString());
++            if (_headlines != null) Process.Start(_banners[_currentBannerIndex].Link.ToString());
+         }
+ 
+         private void NewsListView_OnMouseUp(object sender, MouseButtonEventArgs e)
+diff --git a/src/XIVLauncher/Windows/PatchDownloadDialog.xaml.cs b/src/XIVLauncher/Windows/PatchDownloadDialog.xaml.cs
+index 76fcb376..7292afdb 100644
+--- a/src/XIVLauncher/Windows/PatchDownloadDialog.xaml.cs
++++ b/src/XIVLauncher/Windows/PatchDownloadDialog.xaml.cs
+@@ -5,7 +5,6 @@ using System.Timers;
+ using System.Windows;
+ using System.Windows.Input;
+ using XIVLauncher.Common.Game.Patch;
+-using XIVLauncher.Common.Game.Patch.Acquisition;
+ using XIVLauncher.Common.Util;
+ using XIVLauncher.Windows.ViewModel;
+ using Brushes = System.Windows.Media.Brushes;
+diff --git a/src/XIVLauncher/Windows/SettingsControl.xaml.cs b/src/XIVLauncher/Windows/SettingsControl.xaml.cs
+index 82c7b053..bfef825d 100644
+--- a/src/XIVLauncher/Windows/SettingsControl.xaml.cs
++++ b/src/XIVLauncher/Windows/SettingsControl.xaml.cs
+@@ -11,7 +11,6 @@ using CheapLoc;
+ using MaterialDesignThemes.Wpf.Transitions;
+ using Serilog;
+ using XIVLauncher.Common.Game;
+-using Newtonsoft.Json.Linq;
+ using XIVLauncher.Common;
+ using XIVLauncher.Common.Addon;
+ using XIVLauncher.Common.Addon.Implementations;
+diff --git a/src/XIVLauncher/Windows/ViewModel/MainWindowViewModel.cs b/src/XIVLauncher/Windows/ViewModel/MainWindowViewModel.cs
+index 523eef88..e347b7e1 100644
+--- a/src/XIVLauncher/Windows/ViewModel/MainWindowViewModel.cs
++++ b/src/XIVLauncher/Windows/ViewModel/MainWindowViewModel.cs
+@@ -10,6 +10,7 @@ using System.Threading;
+ using System.Threading.Tasks;
+ using System.Windows;
+ using System.Windows.Input;
++using System.Windows.Media;
+ using System.Windows.Threading;
+ using CheapLoc;
+ using Serilog;
+@@ -36,6 +37,9 @@ namespace XIVLauncher.Windows.ViewModel
+     {
+         private readonly Window _window;
+ 
++        private readonly Task<GateStatus> loginStatusTask;
++        private bool refetchLoginStatus = false;
++
+         public bool IsLoggingIn;
+ 
+         public Launcher Launcher { get; private set; }
+@@ -71,9 +75,36 @@ namespace XIVLauncher.Windows.ViewModel
+             LoginNoThirdCommand = new SyncCommand(GetLoginFunc(AfterLoginAction.StartWithoutThird), () => !IsLoggingIn);
+             LoginRepairCommand = new SyncCommand(GetLoginFunc(AfterLoginAction.Repair), () => !IsLoggingIn);
+ 
++            var frontierUrl = Updates.UpdateLease?.FrontierUrl;
++#if DEBUG || RELEASENOUPDATE
++            // FALLBACK
++            frontierUrl ??= "https://launcher.finalfantasyxiv.com/v650/index.html?rc_lang={0}&time={1}";
++#endif
++
+             Launcher = App.GlobalSteamTicket == null
+-                ? new(App.Steam, App.UniqueIdCache, CommonSettings.Instance, Updates.UpdateLease?.FrontierUrl)
+-                : new(App.GlobalSteamTicket, App.UniqueIdCache, CommonSettings.Instance, Updates.UpdateLease?.FrontierUrl);
++                ? new(App.Steam, App.UniqueIdCache, CommonSettings.Instance, frontierUrl)
++                : new(App.GlobalSteamTicket, App.UniqueIdCache, CommonSettings.Instance, frontierUrl);
++
++            // Tried and failed to get this from the theme
++            var worldStatusBrushOk = new SolidColorBrush(Color.FromRgb(0x21, 0x96, 0xf3));
++            WorldStatusIconColor = worldStatusBrushOk;
++
++            // Grey out world status icon while deferred check is running
++            WorldStatusIconColor = new SolidColorBrush(Color.FromRgb(38, 38, 38));
++
++            this.loginStatusTask = Launcher.GetLoginStatus();
++            this.loginStatusTask.ContinueWith((resultTask) =>
++            {
++                try
++                {
++                    var brushToSet = resultTask.Result.Status ? worldStatusBrushOk : null;
++                    WorldStatusIconColor = brushToSet ?? new SolidColorBrush(Color.FromRgb(242, 24, 24));
++                }
++                catch
++                {
++                    // ignored
++                }
++            });
+         }
+ 
+         private Action<object> GetLoginFunc(AfterLoginAction action)
+@@ -338,7 +369,17 @@ namespace XIVLauncher.Windows.ViewModel
+ #if !DEBUG
+             try
+             {
+-                loginStatus = await Launcher.GetLoginStatus().ConfigureAwait(false);
++                if (refetchLoginStatus)
++                {
++                    var response = await Launcher.GetLoginStatus().ConfigureAwait(false);
++                    loginStatus = response.Status;
++                }
++                else
++                {
++                    var response = await this.loginStatusTask;
++                    loginStatus = response.Status;
++                    refetchLoginStatus = true;
++                }
+             }
+             catch (Exception ex)
+             {
+@@ -1485,6 +1526,17 @@ namespace XIVLauncher.Windows.ViewModel
+             }
+         }
+ 
++        private SolidColorBrush _worldStatusIconColor;
++        public SolidColorBrush WorldStatusIconColor
++        {
++            get => _worldStatusIconColor;
++            set
++            {
++                _worldStatusIconColor = value;
++                OnPropertyChanged(nameof(WorldStatusIconColor));
++            }
++        }
++
+         #endregion
+ 
+         #region Localization
+diff --git a/src/XIVLauncher/XIVLauncher.csproj b/src/XIVLauncher/XIVLauncher.csproj
+index 17fa6690..26d7d592 100644
+--- a/src/XIVLauncher/XIVLauncher.csproj
++++ b/src/XIVLauncher/XIVLauncher.csproj
+@@ -3,7 +3,7 @@
+     <Product>XIVLauncher</Product>
+     <AssemblyTitle>XIVLauncher</AssemblyTitle>
+     <Description>Custom launcher for the most critically acclaimed MMO.</Description>
+-    <VersionPrefix>6.3.10</VersionPrefix>
++    <VersionPrefix>6.3.12</VersionPrefix>
+   </PropertyGroup>
+ 
+   <PropertyGroup>
+@@ -143,4 +143,4 @@
+     <WriteCodeFragment Language="C#" OutputFile="$(CustomAssemblyInfoFile)" AssemblyAttributes="@(AssemblyAttributes)" />
+   </Target>
+ 
+-</Project>
+\ No newline at end of file
++</Project>

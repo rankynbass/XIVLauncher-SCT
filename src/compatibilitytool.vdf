@@ -2,7 +2,7 @@
 {
   "compat_tools"
   {
-    "XIVLauncher.Core" // Internal name of this tool
+    "xivlauncher-sct" // Internal name of this tool
     {
       // Can register this tool with Steam in two ways:
       //
@@ -14,7 +14,7 @@
       "install_path" "."
 
       // For this template, we're going to substitute the display_name key in here, e.g.:
-      "display_name" "XIVLauncher"
+      "display_name" "XIVLauncher-SCT"
 
       "from_oslist"  "windows"
       "to_oslist"    "linux"

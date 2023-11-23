@@ -218,7 +218,7 @@ index 7de7ff8..597e907 100644
              this.passwordInput.Draw();
  
 diff --git a/src/XIVLauncher.Core/Components/MainPage/MainPage.cs b/src/XIVLauncher.Core/Components/MainPage/MainPage.cs
-index dcd0f9f..37fd7ab 100644
+index dcd0f9f..760be13 100644
 --- a/src/XIVLauncher.Core/Components/MainPage/MainPage.cs
 +++ b/src/XIVLauncher.Core/Components/MainPage/MainPage.cs
 @@ -19,6 +19,7 @@ using XIVLauncher.Common.Util;
@@ -247,7 +247,43 @@ index dcd0f9f..37fd7ab 100644
          this.newsFrame.Draw();
  
          ImGui.SameLine();
-@@ -738,15 +739,15 @@ public class MainPage : Page
+@@ -110,13 +111,34 @@ public class MainPage : Page
+         if (this.IsLoggingIn)
+             return;
+ 
+-        this.App.StartLoading("Logging in...", canDisableAutoLogin: true);
++        this.App.StartLoading(!(App.IsLauncherSetup && App.IsUpdateCheckComplete) ? "Checking for updates..." : "Logging In...", canDisableAutoLogin: true);
+ 
+         // if (Program.UsesFallbackSteamAppId && this.loginFrame.IsSteam)
+         //     throw new Exception("Doesn't own Steam AppId on this account.");
+ 
+         Task.Run(async () =>
+         {
++            var startTime = DateTime.UtcNow;
++            var updateCheckCompletePreLoop = App.IsUpdateCheckComplete;
++            while (!(App.IsLauncherSetup && App.IsUpdateCheckComplete))
++            {
++                if (DateTime.UtcNow - startTime > TimeSpan.FromSeconds(16))
++                {
++                    App.ShowMessageBlocking(
++                        "The update checks timed out and did not properly return fallback values.\nTry logging in again. If that doesn't work, restart XIVLauncher.",
++                        "Timeout Error");
++
++                    Reactivate();
++                    return;
++                }
++            }
++
++            if (UpdateCheck.IsUpdateAvailable && !updateCheckCompletePreLoop)
++            {
++                Reactivate(LauncherApp.LauncherState.UpdateWarn);
++                return;
++            }
++
+             if (GameHelpers.CheckIsGameOpen() && action == LoginAction.Repair)
+             {
+                 App.ShowMessageBlocking("The game and/or the official launcher are open. XIVLauncher cannot repair the game if this is the case.\nPlease close them and try again.", "XIVLauncher");
+@@ -738,15 +760,15 @@ public class MainPage : Page
          }
          else if (Environment.OSVersion.Platform == PlatformID.Unix)
          {
@@ -266,7 +302,7 @@ index dcd0f9f..37fd7ab 100644
                          "Check path carefully for typos: " + App.Settings.WineBinaryPath);
              }
  
-@@ -756,10 +757,8 @@ public class MainPage : Page
+@@ -756,10 +778,8 @@ public class MainPage : Page
              var _ = Task.Run(async () =>
              {
                  var tempPath = App.Storage.GetFolder("temp");
@@ -277,7 +313,7 @@ index dcd0f9f..37fd7ab 100644
  
                  var gameFixApply = new GameFixApply(App.Settings.GamePath, App.Settings.GameConfigPath, Program.CompatibilityTools.Settings.Prefix, tempPath);
                  gameFixApply.UpdateProgress += (text, hasProgress, progress) =>
-@@ -789,6 +788,13 @@ public class MainPage : Page
+@@ -789,6 +809,13 @@ public class MainPage : Page
              if (isFailed)
                  return null;
  
@@ -291,11 +327,61 @@ index dcd0f9f..37fd7ab 100644
              App.StartLoading("Starting game...", "Have fun!");
  
              runner = new UnixGameRunner(Program.CompatibilityTools, dalamudLauncher, dalamudOk);
+@@ -1237,10 +1264,10 @@ public class MainPage : Page
+         Program.HideWindow();
+     }
+ 
+-    private void Reactivate()
++    private void Reactivate(LauncherApp.LauncherState state = LauncherApp.LauncherState.Main)
+     {
+         IsLoggingIn = false;
+-        this.App.State = LauncherApp.LauncherState.Main;
++        this.App.State = state;
+ 
+         Program.ShowWindow();
+     }
 diff --git a/src/XIVLauncher.Core/Components/MainPage/NewsFrame.cs b/src/XIVLauncher.Core/Components/MainPage/NewsFrame.cs
-index a23c8cc..0c787dd 100644
+index a23c8cc..c6c0f64 100644
 --- a/src/XIVLauncher.Core/Components/MainPage/NewsFrame.cs
 +++ b/src/XIVLauncher.Core/Components/MainPage/NewsFrame.cs
-@@ -62,7 +62,7 @@ public class NewsFrame : Component
+@@ -15,6 +15,8 @@ public class NewsFrame : Component
+     private Headlines? headlines;
+     private TextureWrap[]? banners;
+ 
++    private IReadOnlyList<Banner>? bannerList;
++
+     private int currentBanner = 0;
+ 
+     private bool newsLoaded = false;
+@@ -43,14 +45,23 @@ public class NewsFrame : Component
+         {
+             this.newsLoaded = false;
+ 
+-            this.headlines = await Headlines.Get(this.app.Launcher, this.app.Settings.ClientLanguage ?? ClientLanguage.English).ConfigureAwait(false);
+-            this.banners = new TextureWrap[this.headlines.Banner.Length];
++            if (!this.app.IsLauncherSetup) return;
++
++            await Headlines.GetWorlds(this.app.Launcher, this.app.Settings.ClientLanguage ?? ClientLanguage.English);
++            
++            bannerList = await Headlines.GetBanners(this.app.Launcher, this.app.Settings.ClientLanguage ?? ClientLanguage.English).ConfigureAwait(false);
++                       
++            await Headlines.GetMessage(this.app.Launcher, this.app.Settings.ClientLanguage ?? ClientLanguage.English);
++
++            headlines = await Headlines.GetNews(this.app.Launcher, this.app.Settings.ClientLanguage ?? ClientLanguage.English).ConfigureAwait(false);
++            
++            this.banners = new TextureWrap[bannerList.Count];
+ 
+             var client = new HttpClient();
+ 
+-            for (var i = 0; i < this.headlines.Banner.Length; i++)
++            for (var i = 0; i < bannerList.Count; i++)
+             {
+-                var textureBytes = await client.GetByteArrayAsync(this.headlines.Banner[i].LsbBanner).ConfigureAwait(false);
++                var textureBytes = await client.GetByteArrayAsync(this.bannerList[i].LsbBanner).ConfigureAwait(false);
+                 this.banners[i] = TextureWrap.Load(textureBytes);
+             }
+ 
+@@ -62,7 +73,7 @@ public class NewsFrame : Component
      {
          var vp = ImGuiHelpers.ViewportSize;
          var calculatedSize = vp.X >= 1280 ? vp.X * 0.7f : vp.X * 0.5f;
@@ -304,9 +390,12 @@ index a23c8cc..0c787dd 100644
      }
  
      public override void Draw()
-@@ -79,7 +79,7 @@ public class NewsFrame : Component
+@@ -77,9 +88,9 @@ public class NewsFrame : Component
+                 ImGui.Image(banner.ImGuiHandle, banner.Size);
+ 
                  if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
-                     AppUtil.OpenBrowser(this.headlines.Banner[this.currentBanner].Link.ToString());
+-                    AppUtil.OpenBrowser(this.headlines.Banner[this.currentBanner].Link.ToString());
++                    AppUtil.OpenBrowser(this.bannerList[this.currentBanner].Link.ToString());
  
 -                ImGui.Dummy(new Vector2(15));
 +                ImGui.Dummy(new Vector2(15) * ImGuiHelpers.GlobalScale);
@@ -873,10 +962,10 @@ index 0000000..8cde9d1
 +    }
 +}
 diff --git a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabGame.cs b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabGame.cs
-index ccea203..e65dd52 100644
+index ccea203..5f95eb8 100644
 --- a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabGame.cs
 +++ b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabGame.cs
-@@ -1,51 +1,94 @@
+@@ -1,51 +1,95 @@
 +using System.Numerics;
  using XIVLauncher.Common;
 +using ImGuiNET;
@@ -957,6 +1046,7 @@ index ccea203..e65dd52 100644
 +            new SettingsEntry<bool>("Use XIVLauncher authenticator/OTP macros", "Check this if you want to use the XIVLauncher authenticator app or macros.", () => Program.Config.IsOtpServer ?? false, x => Program.Config.IsOtpServer = x),
 +            // new SettingsEntry<bool>("Ignore Steam", "Check this if you do not want XIVLauncher to communicate with Steam (Requires Restart).", () => Program.Config.IsIgnoringSteam ?? false, x => Program.Config.IsIgnoringSteam = x),
 +            new SettingsEntry<bool>("Use Experimental UID Cache", "Tries to save your login token for the next start. Can result in launching with expired sessions.\nDisable if receiving FFXIV error 1012 or 500X.", () => Program.Config.IsUidCacheEnabled ?? false, x => Program.Config.IsUidCacheEnabled = x),
++            new SettingsEntry<bool>("Skip XIVLauncher version check", "Don't check for new versions of XIVLauncher. You won't be notified of new updates.\nResults in faster autologin, but may eventually fail to launch. (Requires restart)", () => !(Program.Config.DoVersionCheck ?? true), b => Program.Config.DoVersionCheck = !b),
 +        };
 +    }
 +
@@ -1002,7 +1092,7 @@ index ccea203..e65dd52 100644
  }
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabTroubleshooting.cs b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabTroubleshooting.cs
-index 6756915..2b7c758 100644
+index 6756915..8d06b51 100644
 --- a/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabTroubleshooting.cs
 +++ b/src/XIVLauncher.Core/Components/SettingsPage/Tabs/SettingsTabTroubleshooting.cs
 @@ -25,18 +25,12 @@ public class SettingsTabTroubleshooting : SettingsTab
@@ -1029,8 +1119,8 @@ index 6756915..2b7c758 100644
              Program.ClearAll(true);
          }
  
-+        ImGui.Text("\nOpen the .xlcore folder in your file browser.");
-+        if (ImGui.Button("Open .xlcore"))
++        ImGui.Text("\nOpen the xivlauncher-sct settings folder in your file browser.");
++        if (ImGui.Button("Open xivlauncher-sct"))
 +        {
 +            PlatformHelpers.OpenBrowser(Program.storage.Root.FullName);
 +        }
@@ -1623,7 +1713,7 @@ index 7150c26..26b6173 100644
      public static void TextWrapped(string text)
      {
 diff --git a/src/XIVLauncher.Core/LauncherApp.cs b/src/XIVLauncher.Core/LauncherApp.cs
-index f893e33..59646cd 100644
+index f893e33..fa8704f 100644
 --- a/src/XIVLauncher.Core/LauncherApp.cs
 +++ b/src/XIVLauncher.Core/LauncherApp.cs
 @@ -5,6 +5,7 @@ using Serilog;
@@ -1634,7 +1724,18 @@ index f893e33..59646cd 100644
  using XIVLauncher.Core.Accounts;
  using XIVLauncher.Core.Components;
  using XIVLauncher.Core.Components.LoadingPage;
-@@ -38,6 +39,8 @@ public class LauncherApp : Component
+@@ -20,6 +21,10 @@ public class LauncherApp : Component
+     public static bool IsDebug { get; private set; } = Debugger.IsAttached;
+     private bool isDemoWindow = false;
+ 
++    public bool IsLauncherSetup { get; private set; } = false;
++
++    public bool IsUpdateCheckComplete { get; private set; } = false;
++
+     #region Modal State
+ 
+     private bool isModalDrawing = false;
+@@ -38,6 +43,8 @@ public class LauncherApp : Component
          OtpEntry,
          Fts,
          UpdateWarn,
@@ -1643,7 +1744,7 @@ index f893e33..59646cd 100644
          SteamDeckPrompt,
      }
  
-@@ -84,6 +87,14 @@ public class LauncherApp : Component
+@@ -84,6 +91,14 @@ public class LauncherApp : Component
                      this.updateWarnPage.OnShow();
                      break;
  
@@ -1658,7 +1759,7 @@ index f893e33..59646cd 100644
                  case LauncherState.SteamDeckPrompt:
                      this.steamDeckPromptPage.OnShow();
                      break;
-@@ -102,6 +113,8 @@ public class LauncherApp : Component
+@@ -102,12 +117,14 @@ public class LauncherApp : Component
          LauncherState.OtpEntry => this.otpEntryPage,
          LauncherState.Fts => this.ftsPage,
          LauncherState.UpdateWarn => this.updateWarnPage,
@@ -1667,7 +1768,14 @@ index f893e33..59646cd 100644
          LauncherState.SteamDeckPrompt => this.steamDeckPromptPage,
          _ => throw new ArgumentOutOfRangeException(nameof(this.state), this.state, null)
      };
-@@ -121,6 +134,8 @@ public class LauncherApp : Component
+ 
+     public ILauncherConfig Settings => Program.Config;
+-    public Launcher Launcher { get; private set; }
++    public Launcher? Launcher { get; private set; }
+     public ISteam? Steam => Program.Steam;
+     public Storage Storage { get; private set; }
+ 
+@@ -121,17 +138,18 @@ public class LauncherApp : Component
      private readonly OtpEntryPage otpEntryPage;
      private readonly FtsPage ftsPage;
      private readonly UpdateWarnPage updateWarnPage;
@@ -1676,7 +1784,19 @@ index f893e33..59646cd 100644
      private readonly SteamDeckPromptPage steamDeckPromptPage;
  
      private readonly Background background = new();
-@@ -139,6 +154,8 @@ public class LauncherApp : Component
+ 
+-    public LauncherApp(Storage storage, bool needsUpdateWarning)
++    public LauncherApp(Storage storage)
+     {
+         this.Storage = storage;
+ 
+         this.Accounts = new AccountManager(this.Storage.GetFile("accounts.json"));
+         this.UniqueIdCache = new CommonUniqueIdCache(this.Storage.GetFile("uidCache.json"));
+-        this.Launcher = new Launcher(Program.Steam, UniqueIdCache, Program.CommonSettings);
+ 
+         this.mainPage = new MainPage(this);
+         this.setPage = new SettingsPage(this);
+@@ -139,16 +157,28 @@ public class LauncherApp : Component
          this.LoadingPage = new LoadingPage(this);
          this.ftsPage = new FtsPage(this);
          this.updateWarnPage = new UpdateWarnPage(this);
@@ -1684,8 +1804,34 @@ index f893e33..59646cd 100644
 +        this.updateFailedPage = new UpdateFailedPage(this);
          this.steamDeckPromptPage = new SteamDeckPromptPage(this);
  
-         if (needsUpdateWarning)
-@@ -293,7 +310,7 @@ public class LauncherApp : Component
+-        if (needsUpdateWarning)
++        Task.Run(async () =>
+         {
+-            this.State = LauncherState.UpdateWarn;
+-        }
+-        else
++            var versionCheckResult = await UpdateCheck.CheckForUpdate(Program.Config.DoVersionCheck ?? true);
++            if (versionCheckResult.Success)
++                if (versionCheckResult.NeedUpdate)
++                    this.State = LauncherState.UpdateWarn;
++            this.IsUpdateCheckComplete = true;
++        });
++
++        Task.Run(async () =>
+         {
+-            this.RunStartupTasks();
+-        }
++            var frontierUrl = await UpdateCheck.GetFrontierUrl(Program.Config.DoVersionCheck ?? true);
++            this.Launcher = new Launcher(Program.Steam, UniqueIdCache, Program.CommonSettings, frontierUrl);
++            this.IsLauncherSetup = true;
++            this.mainPage.ReloadNews();
++        });
++
++        this.RunStartupTasks();
+ 
+ #if DEBUG
+         IsDebug = true;
+@@ -293,7 +323,7 @@ public class LauncherApp : Component
  
      private void DrawModal()
      {
@@ -1694,7 +1840,7 @@ index f893e33..59646cd 100644
  
          if (ImGui.BeginPopupModal(this.modalTitle + "###xl_modal", ref this.isModalDrawing, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar))
          {
-@@ -304,10 +321,10 @@ public class LauncherApp : Component
+@@ -304,10 +334,10 @@ public class LauncherApp : Component
  
              ImGui.EndChild();
  
@@ -1847,7 +1993,7 @@ index 0000000..da8d089
 +}
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Core/Program.cs b/src/XIVLauncher.Core/Program.cs
-index 4a68973..1d54b0f 100644
+index 4a68973..8fafddb 100644
 --- a/src/XIVLauncher.Core/Program.cs
 +++ b/src/XIVLauncher.Core/Program.cs
 @@ -22,6 +22,7 @@ using XIVLauncher.Core.Accounts.Secrets.Providers;
@@ -2008,7 +2154,7 @@ index 4a68973..1d54b0f 100644
              new GraphicsDeviceOptions(false, null, true, ResourceBindingModel.Improved, true, true),
              out window,
              out gd);
-@@ -238,15 +303,13 @@ class Program
+@@ -238,27 +303,12 @@ class Program
          cl = gd.ResourceFactory.CreateCommandList();
          Log.Debug("Veldrid OK!");
  
@@ -2019,21 +2165,26 @@ index 4a68973..1d54b0f 100644
          StyleModelV1.DalamudStandard.Apply();
 -        ImGui.GetIO().FontGlobalScale = Config.GlobalScale ?? 1.0f;
  
-         var needUpdate = false;
- 
+-        var needUpdate = false;
+-
 -#if FLATPAK
-         if (Config.DoVersionCheck ?? false)
-         {
-             var versionCheckResult = UpdateCheck.CheckForUpdate().GetAwaiter().GetResult();
-@@ -254,7 +317,6 @@ class Program
-             if (versionCheckResult.Success)
-                 needUpdate = versionCheckResult.NeedUpdate;
-         }   
+-        if (Config.DoVersionCheck ?? false)
+-        {
+-            var versionCheckResult = UpdateCheck.CheckForUpdate().GetAwaiter().GetResult();
+-
+-            if (versionCheckResult.Success)
+-                needUpdate = versionCheckResult.NeedUpdate;
+-        }   
 -#endif
+-
+-        needUpdate = CoreEnvironmentSettings.IsUpgrade ? true : needUpdate;
+-
+-        launcherApp = new LauncherApp(storage, needUpdate);
++        launcherApp = new LauncherApp(storage);
  
-         needUpdate = CoreEnvironmentSettings.IsUpgrade ? true : needUpdate;
+         Invalidate(20);
  
-@@ -317,13 +379,16 @@ class Program
+@@ -317,13 +367,16 @@ class Program
  
      public static void CreateCompatToolsInstance()
      {
@@ -2056,7 +2207,7 @@ index 4a68973..1d54b0f 100644
      }
  
      public static void ShowWindow()
-@@ -383,6 +448,14 @@ class Program
+@@ -383,6 +436,14 @@ class Program
      {
          storage.GetFolder("wineprefix").Delete(true);
          storage.GetFolder("wineprefix");
@@ -2071,7 +2222,7 @@ index 4a68973..1d54b0f 100644
      }
  
      public static void ClearPlugins(bool tsbutton = false)
-@@ -410,9 +483,22 @@ class Program
+@@ -410,9 +471,22 @@ class Program
  
      public static void ClearTools(bool tsbutton = false)
      {
@@ -2097,7 +2248,7 @@ index 4a68973..1d54b0f 100644
          if (tsbutton) CreateCompatToolsInstance();
      }
  
-@@ -436,4 +522,61 @@ class Program
+@@ -436,4 +510,61 @@ class Program
          ClearTools(tsbutton);
          ClearLogs(true);
      }
@@ -10822,21 +10973,51 @@ index 0000000..27e8c43
 +}
 \ No newline at end of file
 diff --git a/src/XIVLauncher.Core/UpdateCheck.cs b/src/XIVLauncher.Core/UpdateCheck.cs
-index bbe333d..6cca341 100644
+index bbe333d..42bce9c 100644
 --- a/src/XIVLauncher.Core/UpdateCheck.cs
 +++ b/src/XIVLauncher.Core/UpdateCheck.cs
-@@ -4,7 +4,9 @@ namespace XIVLauncher.Core;
+@@ -1,23 +1,50 @@
++using System.Net.Http.Headers;
++using Newtonsoft.Json;
+ using Serilog;
++using XIVLauncher.Common.Util;
+ 
+ namespace XIVLauncher.Core;
  
  public static class UpdateCheck
  {
 -    private const string UPDATE_URL = "https://raw.githubusercontent.com/goatcorp/xlcore-distrib/main/version.txt";
 +    private const string UPDATE_URL = "https://raw.githubusercontent.com/rankynbass/XIVLauncher-SCT/main/version.txt";
-+
-+    public static Version? Update = null;
  
-     public static async Task<VersionCheckResult> CheckForUpdate()
+-    public static async Task<VersionCheckResult> CheckForUpdate()
++    public static Version? Update = null;
++
++    private const string LEASE_META_URL = "https://kamori.goats.dev/Launcher/GetLease";
++
++    private const string FRONTIER_FALLBACK_URL = "https://launcher.finalfantasyxiv.com/v650/index.html?rc_lang={0}&time={1}";
++
++    public static bool IsUpdateCheckComplete { get; private set; } = false;
++
++    public static bool IsUpdateAvailable { get; private set; } = false;
++
++    public static async Task<VersionCheckResult> CheckForUpdate(bool doVersionCheck = true)
      {
-@@ -15,6 +17,7 @@ public static class UpdateCheck
++        if (!doVersionCheck)
++        {
++            Log.Information("DoVersionCheck set to false in launcher.ini. Skipping version check.");
++
++            return new VersionCheckResult
++            {
++                Success = false,
++                NeedUpdate = false,
++            };
++        }
++
+         try
+         {
+             using var client = new HttpClient();
+-            client.Timeout = TimeSpan.FromSeconds(5);
++            client.Timeout = TimeSpan.FromSeconds(15);
  
              var response = await client.GetStringAsync(UPDATE_URL).ConfigureAwait(false);
              var remoteVersion = Version.Parse(response);
@@ -10844,8 +11025,112 @@ index bbe333d..6cca341 100644
  
              var localVersion = Version.Parse(AppUtil.GetAssemblyVersion());
  
++            IsUpdateAvailable = remoteVersion > localVersion;
++
+             return new VersionCheckResult
+             {
+                 Success = true,
+@@ -42,4 +69,97 @@ public static class UpdateCheck
+         public bool NeedUpdate { get; init; }
+         public string? WantVersion { get; init; }
+     }
++
++    private enum LeaseFeatureFlags
++    {
++        None = 0,
++        GlobalDisableDalamud = 1,
++        GlobalDisableLogin = 1 << 1,
++    }
++
++    #pragma warning disable CS8618
++    private class Lease
++    {
++        public bool Success { get; set; }
++
++        public string? Message { get; set; }
++
++        public string? CutOffBootver { get; set; }
++
++        public string FrontierUrl { get; set; }
++
++        public LeaseFeatureFlags Flags { get; set; }
++
++        public string ReleasesList { get; set; }
++
++        public DateTime? ValidUntil { get; set; }
++    }
++    #pragma warning restore CS8618
++
++    public class LeaseAcquisitionException : Exception
++    {
++        public LeaseAcquisitionException(string message)
++            : base($"Couldn't acquire lease: {message}")
++        {
++        }
++    }
++
++    public static async Task<string> GetFrontierUrl(bool doVersionCheck)
++    {
++        if (!doVersionCheck)
++            return FRONTIER_FALLBACK_URL;
++
++        using var client = new HttpClient
++        {
++            DefaultRequestHeaders =
++            {
++                UserAgent = { new ProductInfoHeaderValue("XIVLauncher", AppUtil.GetGitHash()) }
++            }
++        };
++        client.Timeout = TimeSpan.FromSeconds(15);
++        client.DefaultRequestHeaders.AddWithoutValidation("X-XL-Track", "Release");
++        client.DefaultRequestHeaders.AddWithoutValidation("X-XL-LV", "0");
++        client.DefaultRequestHeaders.AddWithoutValidation("X-XL-HaveVersion", AppUtil.GetAssemblyVersion());
++        client.DefaultRequestHeaders.AddWithoutValidation("X-XL-HaveAddon", "no");
++        client.DefaultRequestHeaders.AddWithoutValidation("X-XL-FirstStart", "no");
++        client.DefaultRequestHeaders.AddWithoutValidation("X-XL-HaveWine", "no");
++
++        var result = FRONTIER_FALLBACK_URL;
++
++        HttpResponseMessage? response;
++        try
++        {
++            response = await client.GetAsync(LEASE_META_URL).ConfigureAwait(false);   
++            response.EnsureSuccessStatusCode();
++            if (response.Headers.TryGetValues("X-XL-Canary", out var values) &&
++                values.FirstOrDefault() == "yes")
++            {
++                Log.Information("Updates: Received canary track lease!");
++            }
++
++            var leaseData = JsonConvert.DeserializeObject<Lease>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
++
++            if (!leaseData.Success)
++                throw new LeaseAcquisitionException(leaseData.Message!);
++            result = leaseData.FrontierUrl;
++        }
++        catch (TaskCanceledException tcex)
++        {
++            Log.Error(tcex, "Could not get frontier url from server. Request timed out.");
++        }
++        catch (LeaseAcquisitionException leex)
++        {
++            Log.Error(leex, leex.Message);
++        }
++        catch (HttpRequestException hrex)
++        {
++            Log.Error(hrex, "Could not get frontier url from server. Could not contact kamori.goats.dev.");
++        }
++        catch (JsonSerializationException jsex)
++        {
++            Log.Error(jsex, "Could not get frontier url from server. The server returned invalid data.");
++        }
++        return result;
++    }
++
+ }
+\ No newline at end of file
 diff --git a/src/XIVLauncher.Core/XIVLauncher.Core.csproj b/src/XIVLauncher.Core/XIVLauncher.Core.csproj
-index 69fc52d..39b9cca 100644
+index 69fc52d..2ce71c6 100644
 --- a/src/XIVLauncher.Core/XIVLauncher.Core.csproj
 +++ b/src/XIVLauncher.Core/XIVLauncher.Core.csproj
 @@ -9,7 +9,7 @@
@@ -10853,7 +11138,7 @@ index 69fc52d..39b9cca 100644
      <ApplicationIcon>Resources\dalamud_icon.ico</ApplicationIcon>
  
 -    <Version>1.0.6.0</Version>
-+    <Version>0.6.2</Version>
++    <Version>0.6.3</Version>
      <FileVersion>$(Version)</FileVersion>
      <AssemblyVersion>$(Version)</AssemblyVersion>
  
